@@ -1,0 +1,16 @@
+{
+  "name": "den-wows-monorepo",
+  "version": "1.0.0",
+  "description": "Markhors Den - Wolves of Wall Street (Frontend & Backend)",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k -p \"[{name}]\" -n \"Backend,Frontend\" -c \"cyan,magenta\" \"npm run start:dev --prefix Den-WOWS-Backend\" \"npm run dev --prefix Den-WOWS-Frontend\"",
+    "dev:backend": "npm run start:dev --prefix Den-WOWS-Backend",
+    "dev:frontend": "npm run dev --prefix Den-WOWS-Frontend",
+    "build": "npm run build --prefix Den-WOWS-Backend && npm run build --prefix Den-WOWS-Frontend",
+    "start": "concurrently -k -p \"[{name}]\" -n \"Backend,Frontend\" -c \"cyan,magenta\" \"npm run start:prod --prefix Den-WOWS-Backend\" \"npm run start --prefix Den-WOWS-Frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
