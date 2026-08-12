@@ -8,8 +8,8 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: "Wolves of Wall Street",
-  description: "Ateeb Sohail x Fakhar Zaman",
+  title: "Goldmans Gambit | Ingenium 2026",
+  description: "Ingenium 2026",
 };
 
 export default function RootLayout({
@@ -21,7 +21,11 @@ export default function RootLayout({
     <html lang="en">
       <body
         style={{
-          backgroundImage: 'url("/bg.png")'
+          backgroundImage: 'url("/bg.png")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed'
         }}
         className={`${poppins.className} antialiased`}
       >

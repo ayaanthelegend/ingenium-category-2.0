@@ -226,7 +226,7 @@ export default function Home() {
         transition={{ duration: 1.5 }}
         className="fixed top-16 right-16 flex flex-col items-end"
       >
-        <h1 className="text-3xl font-black text-primary/40">wolves of wall street</h1>
+        <h1 className="text-3xl font-black text-[#FFBF00]">Goldmans Gambit</h1>
         <h2 className="text-xl font-light text-white/60">desktop edition</h2>
         <h2 className="text-xl font-light text-white/60">{timeLeft}</h2>
         <h2 className="text-xl font-light text-white/60 mt-2">logged in as : {me?.username}</h2>
@@ -303,11 +303,11 @@ export default function Home() {
                 <div
                   className="w-[48px] h-[48px] flex justify-center items-center bg-primary/10 border border-primary/40 rounded-xl transition duration-500 hover:-translate-y-6 hover:scale-125 cursor-pointer">
                   <Image
-                    src="/Logo-Alt.png"
+                    src="/logowithbg.png"
                     width={48}
                     height={48}
                     alt="logo"
-                    className="rounded-xl"
+                    className="rounded-xl object-cover"
                   />
                 </div>
               </TooltipTrigger>
