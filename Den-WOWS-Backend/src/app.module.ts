@@ -15,6 +15,7 @@ dotenv.config();
     MongooseModule.forRootAsync({
       useFactory: () => ({
         uri: process.env.MONGO_URI || 'mongodb://localhost/nest-auth',
+        serverSelectionTimeoutMS: 5000,
       }),
     }),
     UsersModule,

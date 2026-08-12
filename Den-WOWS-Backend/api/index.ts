@@ -4,6 +4,9 @@ import { AppModule } from '../src/app.module';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express from 'express';
 
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 const server = express();
 let isAppInitialized = false;
 
