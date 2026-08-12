@@ -5,9 +5,6 @@ import {InputWithIcon} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
-import axios from "axios";
-
-const serverUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
 
 export default function Login() {
   const router = useRouter()

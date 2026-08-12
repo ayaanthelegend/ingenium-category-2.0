@@ -43,9 +43,7 @@ export default function Home() {
         }
       })
       const sortedNews = [...resp.data].sort((a, b) => a.sequence - b.sequence)
-      let time = 0
-      sortedNews.forEach(s => time += s.effectAt)
-      await getTimeLeft(time)
+      await getTimeLeft()
       setUpdate(sortedNews[sortedNews.length - 1].headline);
       setNews(resp.data)
     } catch {}
@@ -73,7 +71,7 @@ export default function Home() {
     } catch {}
   }
 
-  const getTimeLeft = async (totalTime: number) => {
+  const getTimeLeft = async () => {
     try {
 
       const resp = await axios.get(`${serverUrl}/news/time-left`, {
@@ -86,12 +84,6 @@ export default function Home() {
     } catch {}
   }
 
-  useEffect(() => {
-    getNews();
-    getStocks();
-    getMe()
-  }, []);
-
   const programComponents: { [key: string]: React.ReactElement } = {
     about: <InfoProgram/>,
     help: <HelpProgram/>,
@@ -102,28 +94,10 @@ export default function Home() {
   };
 
   const router = useRouter();
-  const [time, setTime] = useState("");
   type WindowState = { name: string; z: number };
 
   const [openWindows, setOpenWindows] = useState<WindowState[]>([]);
   const [zCounter, setZCounter] = useState(1);
-
-  useEffect(() => {
-    const updateClock = () => {
-      const now = new Date();
-      const formatted = now.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false
-      });
-      setTime(formatted);
-    };
-
-    updateClock();
-    const interval = setInterval(updateClock, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -138,11 +112,13 @@ export default function Home() {
     }, 1000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token || token == 'null') router.push("/login");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -156,6 +132,7 @@ export default function Home() {
     }, 30000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const programs: {

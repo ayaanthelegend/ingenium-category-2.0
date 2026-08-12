@@ -1,5 +1,4 @@
 import {Card, CardContent} from "@/components/ui/card";
-import {Button} from "@/components/ui/button";
 import {News} from "@/components/schemas";
 
 export default function NewsProgram({ articles }: { articles: Array<News>}) {

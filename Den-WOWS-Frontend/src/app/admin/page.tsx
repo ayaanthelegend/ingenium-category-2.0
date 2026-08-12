@@ -1,5 +1,4 @@
 "use client"
-import {useRouter} from "next/navigation";
 import {Card, CardContent} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import {
@@ -13,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import {Input} from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import axios from "axios";
 import {useEffect, useState} from "react";
 import {
@@ -57,8 +56,6 @@ const Users = () => {
   const [users, setUsers] = useState<Array<User>>([]);
   const [createUserDto, setCreateUserDto] = useState<CreateUserDto>({ username: "", password: "", balance: 0 });
   const [updateUserDto, setUpdateUserDto] = useState<UpdateUserDto>({ username: "", balance: 0 });
-
-  const router = useRouter()
 
   const getUsers = async () => {
     const resp = await axios.get(`${serverUrl}/users/all`, {
@@ -181,7 +178,7 @@ const Users = () => {
                                         <CardContent>
                                           <h1 className={'text-lg font-black'}>ERROR</h1>
                                           <Label>Amount Owned (Valued at {stock.buy} at {new Date(stock.boughtAt).toLocaleTimeString()}) (Bought At)</Label>
-                                          <Input id={'balance'} onChange={(e) => {
+                                          <Input id={'balance'} onChange={() => {
                                             return;
                                           }} value={stock.amount} type={'number'} className={'mt-3'}/>
                                         </CardContent>

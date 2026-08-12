@@ -1,5 +1,4 @@
 import {Card, CardContent} from "@/components/ui/card";
-import {Button} from "@/components/ui/button";
 import {Stock, User} from "@/components/schemas";
 
 export default function BankProgram({me, stocks} : { me: User | null, stocks: Array<Stock>}) {
