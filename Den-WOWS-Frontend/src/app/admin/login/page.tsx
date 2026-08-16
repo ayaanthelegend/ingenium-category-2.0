@@ -12,8 +12,8 @@ export default function Login() {
   const [password, setPassword] = useState<string>("")
 
   const login = async () => {
-    localStorage.setItem('adminUsername', username)
-    localStorage.setItem('adminPassword', password)
+    localStorage.setItem('adminUsername', username.trim())
+    localStorage.setItem('adminPassword', password.trim())
     router.push('/admin')
   }
   return (
