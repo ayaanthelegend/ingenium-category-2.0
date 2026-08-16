@@ -16,6 +16,9 @@ dotenv.config();
       useFactory: () => ({
         uri: process.env.MONGO_URI || 'mongodb://localhost/nest-auth',
         serverSelectionTimeoutMS: 5000,
+        maxPoolSize: 10,
+        minPoolSize: 1,
+        socketTimeoutMS: 45000,
       }),
     }),
     UsersModule,
