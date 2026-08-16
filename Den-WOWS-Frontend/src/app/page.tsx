@@ -28,7 +28,7 @@ import {News, Stock, User} from "@/components/schemas";
 import axios from "axios";
 
 
-const serverUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const serverUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
 export default function Home() {
   const [news, setNews] = useState<Array<News>>([]);

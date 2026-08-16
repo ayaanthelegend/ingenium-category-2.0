@@ -23,7 +23,7 @@ const getPercentage = (price: number, old: number): string => {
   } else return '0%';
 };
 
-const serverUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const serverUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
 export default function StockProgram({ stocks, onRefresh } : {stocks: Array<Stock>; onRefresh?: () => void}) {
   return (
