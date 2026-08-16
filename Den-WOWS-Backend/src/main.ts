@@ -60,8 +60,8 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Accept, Authorization, X-Requested-With',
   });
 
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
-  console.log(`🚀 NestJS Backend running on http://localhost:${port}`);
+  const port = Number(process.env.PORT) || 3000;
+  await app.listen(port, '0.0.0.0');
+  console.log(`🚀 NestJS Backend running on port ${port}`);
 }
 bootstrap();
