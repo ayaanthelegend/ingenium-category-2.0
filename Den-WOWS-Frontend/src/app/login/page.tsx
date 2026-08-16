@@ -7,7 +7,8 @@ import {useRouter} from "next/navigation";
 import {useState} from "react";
 import axios from "axios";
 
-const serverUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000').replace(/\/+$/, '');
+const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const serverUrl = (rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : `https://${rawUrl}`).replace(/\/+$/, '');
 
 export default function Login() {
   const router = useRouter()

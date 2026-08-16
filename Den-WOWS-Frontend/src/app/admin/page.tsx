@@ -26,7 +26,8 @@ import {
   Flag,
   UpdateNewsDto, StockUser
 } from "@/components/schemas";
-const serverUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000').replace(/\/+$/, '');
+const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const serverUrl = (rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : `https://${rawUrl}`).replace(/\/+$/, '');
 
 const getAdminAuthHeader = () => {
   const username = typeof window !== 'undefined' ? localStorage.getItem('adminUsername') || '' : '';
