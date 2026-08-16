@@ -9,6 +9,7 @@ import {
   LiaDoorOpenSolid,
   LiaInfoSolid,
   LiaQuestionSolid,
+  LiaTrophySolid,
 } from "react-icons/lia";
 import { AiOutlineStock } from "react-icons/ai";
 import { RiBankFill, RiNewspaperLine } from "react-icons/ri";
@@ -22,6 +23,7 @@ import CreditsProgram from "@/components/programs/credits";
 import StockProgram from "@/components/programs/stock_market";
 import BankProgram from "@/components/programs/bank";
 import NewsProgram from "@/components/programs/news";
+import LeaderboardProgram from "@/components/programs/leaderboard";
 import {News, Stock, User} from "@/components/schemas";
 import axios from "axios";
 
@@ -32,6 +34,7 @@ export default function Home() {
   const [news, setNews] = useState<Array<News>>([]);
   const [stocks, setStocks] = useState<Array<Stock>>([]);
   const [me, setMe] = useState<User | null>(null);
+  const [leaderboardUsers, setLeaderboardUsers] = useState<Array<User>>([]);
   const [update, setUpdate] = useState('')
   const [timeLeft, setTimeLeft] = useState(0)
 
@@ -42,10 +45,14 @@ export default function Home() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         }
       })
-      const sortedNews = [...resp.data].sort((a, b) => a.sequence - b.sequence)
+      const sortedNews = [...(resp.data || [])].sort((a, b) => a.sequence - b.sequence)
       await getTimeLeft()
-      setUpdate(sortedNews[sortedNews.length - 1].headline);
-      setNews(resp.data)
+      if (sortedNews.length > 0) {
+        setUpdate(sortedNews[sortedNews.length - 1].headline || '');
+      } else {
+        setUpdate('');
+      }
+      setNews(resp.data || [])
     } catch {}
   }
 
@@ -56,7 +63,7 @@ export default function Home() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         }
       })
-      setStocks(resp.data)
+      setStocks(resp.data || [])
     } catch {}
   }
 
@@ -71,6 +78,24 @@ export default function Home() {
     } catch {}
   }
 
+  const getLeaderboard = async () => {
+    try {
+      const resp = await axios.get(`${serverUrl}/users/leaderboard`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        }
+      })
+      setLeaderboardUsers(resp.data || [])
+    } catch {}
+  }
+
+  const refreshAllData = () => {
+    getNews();
+    getStocks();
+    getMe();
+    getLeaderboard();
+  };
+
   const getTimeLeft = async () => {
     try {
 
@@ -80,7 +105,7 @@ export default function Home() {
         }
       })
 
-      setTimeLeft(resp.data.timeLeft)
+      setTimeLeft(resp.data?.timeLeft || 0)
     } catch {}
   }
 
@@ -88,9 +113,10 @@ export default function Home() {
     about: <InfoProgram/>,
     help: <HelpProgram/>,
     credits: <CreditsProgram/>,
-    stocks: <StockProgram stocks={stocks}/>,
+    stocks: <StockProgram stocks={stocks} onRefresh={refreshAllData}/>,
     bank: <BankProgram me={me} stocks={stocks}/>,
     news: <NewsProgram articles={news}/>,
+    scoreboard: <LeaderboardProgram users={leaderboardUsers} stocks={stocks}/>,
   };
 
   const router = useRouter();
@@ -100,19 +126,13 @@ export default function Home() {
   const [zCounter, setZCounter] = useState(1);
 
   useEffect(() => {
-    if (timeLeft <= 0) {
-      getNews()
-      getStocks()
-      getMe()
-      return
-    };
+    if (timeLeft <= 0) return;
 
     const interval = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft]);
 
   useEffect(() => {
@@ -122,14 +142,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    getNews();
-    getStocks();
-    getMe();
+    refreshAllData();
 
     const interval = setInterval(() => {
-      getNews();
-      getStocks();
-    }, 30000);
+      refreshAllData();
+    }, 5000);
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -146,6 +163,7 @@ export default function Home() {
     { name: "stocks", item: AiOutlineStock },
     { name: "bank", item: RiBankFill },
     { name: "news", item: RiNewspaperLine },
+    { name: "scoreboard", item: LiaTrophySolid },
     { name: "log out", item: LiaDoorOpenSolid, click: () => router.push("/login") },
   ];
 

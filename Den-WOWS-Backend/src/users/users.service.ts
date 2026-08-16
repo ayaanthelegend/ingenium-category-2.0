@@ -16,16 +16,22 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { username, password, balance } = createUserDto;
-    const existing = await this.userModel.findOne({ username }).exec();
+    const cleanUsername = (username || '').trim();
+    const existing = await this.userModel.findOne({ username: cleanUsername }).exec();
     if (existing) throw new ConflictException('Username already exists');
 
     const saltRounds = 10;
     const hashed = await bcrypt.hash(password, saltRounds);
 
-    const created = new this.userModel({ username, password: hashed, balance});
+    const created = new this.userModel({
+      username: cleanUsername,
+      password: hashed,
+      balance: balance ?? 200000,
+      stocksOwned: [],
+    });
     const saved = await created.save();
     const obj = saved.toObject();
-    obj.password = '';
+    delete (obj as Partial<User>).password;
     return obj;
   }
 
@@ -39,13 +45,15 @@ export class UsersService {
   async incrementBalance(id: string, amount: number){
     return this.userModel.findOneAndUpdate(
       { _id: new Types.ObjectId(id) },
-      { $inc
-          : { balance: amount } },
+      { $inc: { balance: amount } },
     )
   }
 
   async updateStock(user: UserDocument, stock: StocksDocument, amount: number) {
-    const userWStocks = user
+    const userWStocks = user;
+    if (!userWStocks.stocksOwned) {
+      userWStocks.stocksOwned = [];
+    }
     const stockIndex = userWStocks.stocksOwned.findIndex(s => s.id == (stock._id as Types.ObjectId).toHexString())
     if (stockIndex >= 0) {
       userWStocks.stocksOwned[stockIndex].amount += amount
@@ -69,7 +77,8 @@ export class UsersService {
   }
 
   async findByUsername(username: string): Promise<UserDocument | null> {
-    return this.userModel.findOne({ username }).exec();
+    const cleanUsername = (username || '').trim();
+    return this.userModel.findOne({ username: cleanUsername }).exec();
   }
 
   async updateUser(id: string, updateUserDto: Partial<UpdateUserDto>) {

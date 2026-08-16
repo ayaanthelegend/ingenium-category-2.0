@@ -25,7 +25,7 @@ const getPercentage = (price: number, old: number): string => {
 
 const serverUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-export default function StockProgram({ stocks } : {stocks: Array<Stock>}) {
+export default function StockProgram({ stocks, onRefresh } : {stocks: Array<Stock>; onRefresh?: () => void}) {
   return (
     <div className={'w-full flex flex-col justify-center items-center pb-8'}>
       <h1 className={'text-primary/60 text-3xl font-black text-center'}>wolves stock exchange</h1>
@@ -35,14 +35,14 @@ export default function StockProgram({ stocks } : {stocks: Array<Stock>}) {
       </p>
       <div className={'flex flex-row flex-wrap justify-center items-center w-full gap-2 mt-8'}>
         {stocks.map((stock) => (
-          <StockCard key={stock._id} stock={stock} />
+          <StockCard key={stock._id} stock={stock} onRefresh={onRefresh} />
         ))}
       </div>
     </div>
   );
 }
 
-export function StockCard({ stock }: { stock: Stock }) {
+export function StockCard({ stock, onRefresh }: { stock: Stock; onRefresh?: () => void }) {
   let oldPrice = stock.price;
   if (stock.priceHistory.length >= 2) {
     oldPrice = stock.priceHistory[stock.priceHistory.length - 2];
@@ -69,6 +69,7 @@ export function StockCard({ stock }: { stock: Stock }) {
       setOpen(false);
       setError('');
       setAmount(0);
+      onRefresh?.();
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
         setError(e.response?.data?.message || "Error buying stock");
@@ -90,11 +91,12 @@ export function StockCard({ stock }: { stock: Stock }) {
       setOpen(false);
       setError('');
       setAmount(0);
+      onRefresh?.();
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
-        setError(e.response?.data?.message || "Error buying stock");
+        setError(e.response?.data?.message || "Error selling stock");
       } else {
-        setError("Error buying stock");
+        setError("Error selling stock");
       }
     }
     setDisabled(false);

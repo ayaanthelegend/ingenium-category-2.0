@@ -38,7 +38,21 @@ export class UsersController {
     const user = await this.usersService.findById(req.user.sub);
     if (!user) return null;
     const obj = user.toObject();
-    delete obj.password;
+    delete (obj as any).password;
     return obj;
+  }
+
+  // Protected route: leaderboard of all teams for players
+  @UseGuards(JwtAuthGuard)
+  @Get('leaderboard')
+  @RequireFlag('global')
+  @UseGuards(FeatureFlagGuard)
+  async getLeaderboard() {
+    const users = await this.usersService.getAll();
+    return users.map((u) => {
+      const obj = u.toObject();
+      delete (obj as any).password;
+      return obj;
+    });
   }
 }

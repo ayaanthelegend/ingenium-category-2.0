@@ -48,37 +48,40 @@ export class StocksService {
         }
       }
       for (const stock of stocks) {
-        let price = 100
+        let price = stock.price ?? 100;
         switch ((stock._id as Types.ObjectId).toHexString()) {
           case "68d59ff665b970d1077c4e96":
-            price = 70
+            price = 70;
             break;
           case "68d5a01265b970d1077c4e9c":
-            price = 95
+            price = 95;
             break;
           case "68d5a02a65b970d1077c4ea1":
-            price = 22
+            price = 22;
             break;
           case "68d5a03c65b970d1077c4ea4":
-            price = 1
+            price = 1;
             break;
           case "68d5a04c65b970d1077c4ea7":
-            price = 45
+            price = 45;
             break;
           case "68d5a05b65b970d1077c4eaa":
-            price = 38
+            price = 38;
             break;
           case "68d5a06965b970d1077c4ead":
-            price = 55
+            price = 55;
             break;
           case "68d5a07f65b970d1077c4eb0":
-            price = 62
+            price = 62;
             break;
           case "68d5a09465b970d1077c4eb3":
-            price = 265
+            price = 265;
             break;
           case "68d5a0ae65b970d1077c4eb6":
-            price = 65
+            price = 65;
+            break;
+          default:
+            price = stock.price ?? 100;
             break;
         }
         stock.priceHistory = [price, ...stock.priceHistory];
@@ -123,7 +126,7 @@ export class StocksService {
 
   createStock(stock: CreateStockDto): Promise<StocksDocument> {
     return this.stocksModel.create({
-      name: stock.name,
+      name: (stock.name || '').trim(),
       price: stock.price,
       priceHistory: []
     })
