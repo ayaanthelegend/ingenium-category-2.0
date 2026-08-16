@@ -38,7 +38,21 @@ const getAdminAuthHeader = () => {
   return `Basic ${credentials}`;
 };
 
+import { useRouter } from "next/navigation";
+
 export default function Admin() {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const u = localStorage.getItem('adminUsername');
+      const p = localStorage.getItem('adminPassword');
+      if (!u || !p) {
+        router.push('/admin/login');
+      }
+    }
+  }, [router]);
+
   return (
     <div className="flex justify-between items-center flex-col min-h-screen bg-black/10 bg-black/50 text-white">
       <div className={'w-full flex justify-center items-center gap-16 flex-col p-16'}>
