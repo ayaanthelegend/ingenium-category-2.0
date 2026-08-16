@@ -33,7 +33,8 @@ async function bootstrap() {
   dotenv.config();
 
   const customUri = process.env.MONGO_URI;
-  const isLocalhost = !customUri || customUri.includes('localhost') || customUri.includes('127.0.0.1');
+  const isProd = process.env.NODE_ENV === 'production' || !!process.env.RAILWAY_ENVIRONMENT;
+  const isLocalhost = !isProd && (!customUri || customUri.includes('localhost') || customUri.includes('127.0.0.1'));
 
   if (isLocalhost) {
     const isMongoRunning = await isPortOpen('127.0.0.1', 27017, 1000);
