@@ -32,9 +32,8 @@ export class NewsController {
   }
 
   @Get('')
-  @UseGuards(JwtAuthGuard)
   @RequireFlag('global')
-  @UseGuards(FeatureFlagGuard)
+  @UseGuards(JwtAuthGuard, FeatureFlagGuard)
   async getNews() {
     const allNews = await this.newsService.getNews();
     const flag = await this.flagsService.getFullFlag('global')
@@ -67,9 +66,8 @@ export class NewsController {
 
 
   @Get('/time-left')
-  @UseGuards(JwtAuthGuard)
   @RequireFlag('global')
-  @UseGuards(FeatureFlagGuard)
+  @UseGuards(JwtAuthGuard, FeatureFlagGuard)
   async getTimeLeft() {
     const allNews = await this.newsService.getNews();
     const flag = await this.flagsService.getFullFlag('global');

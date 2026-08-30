@@ -681,10 +681,10 @@ const BigBlackSwitch = () => {
         <h1 className={'text-5xl font-black text-white'}>the big switch (EVENT IS {flag.value ? 'ON' : 'OFF'})</h1>
         <div className={'mt-4 gap-4 flex'}>
           <Button className={flag.value ? 'pointer-events-none opacity-50': ''} onClick={resumeFlag}>
-            Ateeb says go
+            Resume Event
           </Button>
           <Button className={!flag.value ? 'pointer-events-none opacity-50' : ''} onClick={pauseFlag}>
-            Ateeb says pause
+            Pause Event
           </Button>
         </div>
       </CardContent>

@@ -38,55 +38,23 @@ export class StocksService {
         }
       }
 
-      for (const item of triggered) {
-        for (const effect of item.effects) {
-          const index = stocks.findIndex(s => (s._id as Types.ObjectId).toHexString() == effect.id)
-          if (index >= 0) {
-            stocks[index].price = effect.newBuy
-            stocks[index].priceHistory.push(effect.newBuy)
+      for (const stock of stocks) {
+        const initialPrice = stock.price ?? 100;
+        const history: number[] = [initialPrice];
+        let currentPrice = initialPrice;
+
+        for (const item of triggered) {
+          for (const effect of item.effects) {
+            if ((stock._id as Types.ObjectId).toHexString() === effect.id) {
+              currentPrice = effect.newBuy;
+              history.push(currentPrice);
+            }
           }
         }
+        stock.price = currentPrice;
+        stock.priceHistory = history;
       }
-      for (const stock of stocks) {
-        let price = stock.price ?? 100;
-        switch ((stock._id as Types.ObjectId).toHexString()) {
-          case "68d59ff665b970d1077c4e96":
-            price = 70;
-            break;
-          case "68d5a01265b970d1077c4e9c":
-            price = 95;
-            break;
-          case "68d5a02a65b970d1077c4ea1":
-            price = 22;
-            break;
-          case "68d5a03c65b970d1077c4ea4":
-            price = 1;
-            break;
-          case "68d5a04c65b970d1077c4ea7":
-            price = 45;
-            break;
-          case "68d5a05b65b970d1077c4eaa":
-            price = 38;
-            break;
-          case "68d5a06965b970d1077c4ead":
-            price = 55;
-            break;
-          case "68d5a07f65b970d1077c4eb0":
-            price = 62;
-            break;
-          case "68d5a09465b970d1077c4eb3":
-            price = 265;
-            break;
-          case "68d5a0ae65b970d1077c4eb6":
-            price = 65;
-            break;
-          default:
-            price = stock.price ?? 100;
-            break;
-        }
-        stock.priceHistory = [price, ...stock.priceHistory];
-      }
-      return stocks
+      return stocks;
     } else throw new InternalServerErrorException();
   }
 

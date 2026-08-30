@@ -41,17 +41,15 @@ export class StocksController {
   }
 
   @Post('/buy/:id')
-  @UseGuards(JwtAuthGuard)
   @RequireFlag('global')
-  @UseGuards(FeatureFlagGuard)
+  @UseGuards(JwtAuthGuard, FeatureFlagGuard)
   async buyStock(@Req() req: RequestWithUser, @Param('id') id: string, @Body() buySellStockDto: BuySellStockDto) {
     return this.stocksService.buyStock(id, buySellStockDto.amount, req.user.userId)
   }
 
   @Post('/sell/:id')
-  @UseGuards(JwtAuthGuard)
   @RequireFlag('global')
-  @UseGuards(FeatureFlagGuard)
+  @UseGuards(JwtAuthGuard, FeatureFlagGuard)
   async sellStock(@Req() req: RequestWithUser, @Param('id') id: string, @Body() buySellStockDto: BuySellStockDto) {
     return this.stocksService.sellStock(id, buySellStockDto.amount, req.user.userId)
   }

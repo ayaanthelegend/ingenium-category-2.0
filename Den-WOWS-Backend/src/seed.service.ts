@@ -64,16 +64,23 @@ export class SeedService implements OnModuleInit {
     const count = await this.stockModel.countDocuments().exec();
     if (count === 0) {
       const defaultStocks = [
-        { _id: new Types.ObjectId('68d59ff665b970d1077c4e96'), name: 'AeroDynamics', price: 70, priceHistory: [70] },
-        { _id: new Types.ObjectId('68d5a01265b970d1077c4e9c'), name: 'BioGen', price: 95, priceHistory: [95] },
-        { _id: new Types.ObjectId('68d5a02a65b970d1077c4ea1'), name: 'CyberCore', price: 22, priceHistory: [22] },
-        { _id: new Types.ObjectId('68d5a03c65b970d1077c4ea4'), name: 'Dogecoin X', price: 1, priceHistory: [1] },
-        { _id: new Types.ObjectId('68d5a04c65b970d1077c4ea7'), name: 'EcoEnergy', price: 45, priceHistory: [45] },
-        { _id: new Types.ObjectId('68d5a05b65b970d1077c4eaa'), name: 'FutureTech', price: 38, priceHistory: [38] },
-        { _id: new Types.ObjectId('68d5a06965b970d1077c4ead'), name: 'GlobalLogistics', price: 55, priceHistory: [55] },
-        { _id: new Types.ObjectId('68d5a07f65b970d1077c4eb0'), name: 'HyperLoop', price: 62, priceHistory: [62] },
-        { _id: new Types.ObjectId('68d5a09465b970d1077c4eb3'), name: 'InfiniteAI', price: 265, priceHistory: [265] },
-        { _id: new Types.ObjectId('68d5a0ae65b970d1077c4eb6'), name: 'JupiterMining', price: 65, priceHistory: [65] },
+        { _id: new Types.ObjectId('68d5b10165b970d1077c5001'), name: 'SAB (Sadiq Bancorp)', price: 1200, priceHistory: [1200] },
+        { _id: new Types.ObjectId('68d5b10265b970d1077c5002'), name: 'ABG (Asif Banking Group)', price: 950, priceHistory: [950] },
+        { _id: new Types.ObjectId('68d5b10365b970d1077c5003'), name: 'BURR (Burr Builders)', price: 600, priceHistory: [600] },
+        { _id: new Types.ObjectId('68d5b10465b970d1077c5004'), name: 'OMER (Omer Industries)', price: 800, priceHistory: [800] },
+        { _id: new Types.ObjectId('68d5b10565b970d1077c5005'), name: 'K333 (Kashif 333 Mining)', price: 450, priceHistory: [450] },
+        { _id: new Types.ObjectId('68d5b10665b970d1077c5006'), name: 'SSM (S&S Miners)', price: 550, priceHistory: [550] },
+        { _id: new Types.ObjectId('68d5b10765b970d1077c5007'), name: 'GFE (Gillani FutureEnergies)', price: 1100, priceHistory: [1100] },
+        { _id: new Types.ObjectId('68d5b10865b970d1077c5008'), name: "NAS (Nasik's Oilers)", price: 1400, priceHistory: [1400] },
+        { _id: new Types.ObjectId('68d5b10965b970d1077c5009'), name: 'AYN (AyaanAutos)', price: 700, priceHistory: [700] },
+        { _id: new Types.ObjectId('68d5b10a65b970d1077c5010'), name: 'MUB (Mubashir Motors)', price: 850, priceHistory: [850] },
+        { _id: new Types.ObjectId('68d5b10b65b970d1077c5011'), name: 'KIC (Khokhar IT Consultancy)', price: 1500, priceHistory: [1500] },
+        { _id: new Types.ObjectId('68d5b10c65b970d1077c5012'), name: 'ACS (Atif Cloud Systems)', price: 1350, priceHistory: [1350] },
+        { _id: new Types.ObjectId('68d5b10d65b970d1077c5013'), name: 'NLB (Nouman Labs)', price: 900, priceHistory: [900] },
+        { _id: new Types.ObjectId('68d5b10e65b970d1077c5014'), name: 'IAR (Ijaz AstroResearch)', price: 750, priceHistory: [750] },
+        { _id: new Types.ObjectId('68d5b10f65b970d1077c5015'), name: 'ZSG (Zahid-Sial Gold Refinery)', price: 2000, priceHistory: [2000] },
+        { _id: new Types.ObjectId('68d5b11065b970d1077c5016'), name: 'ASB (ASB Precious Metals)', price: 1650, priceHistory: [1650] },
+        { _id: new Types.ObjectId('68d5b11165b970d1077c5017'), name: 'MLH (Malhi Mills)', price: 500, priceHistory: [500] },
       ];
       await this.stockModel.create(defaultStocks);
       console.log('[SeedService] Seeded default stock market listings.');
@@ -86,24 +93,24 @@ export class SeedService implements OnModuleInit {
       await this.newsModel.create([
         {
           headline: 'Market Opening Surge',
-          desc: 'Wall Street opens with strong bullish sentiment across tech and energy sectors.',
+          desc: 'Stock market opens with strong bullish sentiment across tech and energy sectors.',
           sequence: 1,
           effectAt: 60,
-          effects: [{ id: '68d5a09465b970d1077c4eb3', newBuy: 290 }],
+          effects: [{ id: '68d5b10b65b970d1077c5011', newBuy: 1750 }],
         },
         {
-          headline: 'Quantum Computing Breakthrough',
-          desc: 'InfiniteAI announces Next-Gen chip architecture.',
+          headline: 'Cloud Infrastructure Breakthrough',
+          desc: 'Atif Cloud Systems secures major enterprise contracts.',
           sequence: 2,
           effectAt: 120,
-          effects: [{ id: '68d5a06965b970d1077c4ead', newBuy: 80 }],
+          effects: [{ id: '68d5b10c65b970d1077c5012', newBuy: 1600 }],
         },
         {
-          headline: 'Green Energy Subsidy Approved',
-          desc: 'Government allocates $50B infrastructure budget for clean energy initiatives.',
+          headline: 'Clean Energy Grant Approved',
+          desc: 'Gillani FutureEnergies awarded federal clean energy grant.',
           sequence: 3,
           effectAt: 180,
-          effects: [{ id: '68d5a04c65b970d1077c4ea7', newBuy: 65 }],
+          effects: [{ id: '68d5b10765b970d1077c5007', newBuy: 1350 }],
         },
       ]);
       console.log('[SeedService] Seeded initial news events.');

@@ -5,6 +5,14 @@ import * as net from 'net';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { AppModule } from './app.module';
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[Process] Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err, origin) => {
+  console.error('[Process] Uncaught Exception thrown:', err, 'origin:', origin);
+});
+
 async function isPortOpen(host: string, port: number, timeout = 1000): Promise<boolean> {
   return new Promise((resolve) => {
     const socket = new net.Socket();

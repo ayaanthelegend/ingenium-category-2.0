@@ -38,6 +38,18 @@ export default function Home() {
   const [leaderboardUsers, setLeaderboardUsers] = useState<Array<User>>([]);
   const [update, setUpdate] = useState('')
   const [timeLeft, setTimeLeft] = useState(0)
+  const [flag, setFlag] = useState<Flag | null>(null)
+  const [autoPauseTimeLeft, setAutoPauseTimeLeft] = useState(0)
+
+  const getFlag = async () => {
+    try {
+      const resp = await axios.get(`${serverUrl}/flags/global`);
+      setFlag(resp.data);
+      if (resp.data) {
+        setAutoPauseTimeLeft(resp.data.pauseTimeLeft ?? 0);
+      }
+    } catch {}
+  };
 
   const getNews = async () => {
     try {
@@ -95,6 +107,7 @@ export default function Home() {
     getStocks();
     getMe();
     getLeaderboard();
+    getFlag();
   };
 
   const getTimeLeft = async () => {
@@ -127,14 +140,13 @@ export default function Home() {
   const [zCounter, setZCounter] = useState(1);
 
   useEffect(() => {
-    if (timeLeft <= 0) return;
-
     const interval = setInterval(() => {
       setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+      setAutoPauseTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timeLeft]);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -213,7 +225,7 @@ export default function Home() {
           getNews()
           getStocks()
           getMe()
-        }}>Refresh</span> made with &lt;3 by ateeb sohail
+        }}>Refresh</span> made with &lt;3 by Ayaan Bilal
       </h1>
 
       <motion.div
@@ -224,8 +236,15 @@ export default function Home() {
       >
         <h1 className="text-3xl font-black text-[#FFBF00]">Goldmans Gambit</h1>
         <h2 className="text-xl font-light text-white/60">desktop edition</h2>
-        <h2 className="text-xl font-light text-white/60">{timeLeft}</h2>
-        <h2 className="text-xl font-light text-white/60 mt-2">logged in as : {me?.username}</h2>
+        {flag && !flag.value ? (
+          <h2 className="text-lg font-bold text-red-500 mt-1">[ EVENT PAUSED ]</h2>
+        ) : (
+          <div className="flex flex-col items-end mt-1 text-sm text-white/80 font-light">
+            <h2>Next Auto-Pause: <span className="font-bold text-amber-400">{autoPauseTimeLeft}s</span></h2>
+            <h2>Next News Event: <span className="font-bold text-amber-400">{timeLeft > 0 ? `${timeLeft}s` : 'None'}</span></h2>
+          </div>
+        )}
+        <h2 className="text-sm font-light text-white/60 mt-2">logged in as : {me?.username}</h2>
         <motion.div
           initial={{ opacity: 0, translateY: '50%' }}
           animate={{ opacity: 1, translateY: '0%' }}
