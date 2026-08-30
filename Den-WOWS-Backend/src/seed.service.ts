@@ -25,6 +25,17 @@ export class SeedService implements OnModuleInit {
     console.log('[SeedService] Database initialization complete.');
   }
 
+  async resetDatabase() {
+    console.log('[SeedService] Resetting database via admin request...');
+    await this.stockModel.deleteMany({});
+    await this.newsModel.deleteMany({});
+    await this.userModel.deleteMany({});
+    await this.flagModel.deleteMany({});
+    await this.onModuleInit();
+    console.log('[SeedService] Database reset & re-seeded successfully.');
+    return { success: true, message: 'Database wiped and re-seeded with 17 new stocks!' };
+  }
+
   private async seedFlag() {
     const flag = await this.flagModel.findOne({ key: 'global' }).exec();
     if (!flag) {

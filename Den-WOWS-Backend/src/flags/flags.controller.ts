@@ -1,26 +1,36 @@
-import {Body, Controller, Get, Patch, Post, UseGuards} from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
 import { FlagsService } from './flags.service';
 import { AdminKeyGuard } from '../auth/admin-key.guard';
+import { SeedService } from '../seed.service';
 
 @Controller('flags')
 export class FlagsController {
-  constructor(private flagsService: FlagsService) {}
+  constructor(
+    private flagsService: FlagsService,
+    private seedService: SeedService,
+  ) {}
 
   @Post('/start')
   @UseGuards(AdminKeyGuard)
   async startGame() {
-    return this.flagsService.start()
+    return this.flagsService.start();
   }
 
   @Post('/pause')
   @UseGuards(AdminKeyGuard)
   async pauseGame() {
-    return this.flagsService.pause()
+    return this.flagsService.pause();
+  }
+
+  @Post('/reset-db')
+  @UseGuards(AdminKeyGuard)
+  async resetDatabase() {
+    return this.seedService.resetDatabase();
   }
 
   @Get('/global')
   async getGlobal() {
-    return this.flagsService.getFullFlag('global')
+    return this.flagsService.getFullFlag('global');
   }
 
   @Get()

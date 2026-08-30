@@ -671,6 +671,21 @@ const BigBlackSwitch = () => {
     }
   }
 
+  const resetDatabase = async () => {
+    if (confirm("Are you sure you want to reset the database? This will wipe all existing stocks, news, users, and seed the 17 new Ingenium 2026 stocks!")) {
+      try {
+        await axios.post(`${serverUrl}/flags/reset-db`, {}, {
+          headers: { Authorization: getAdminAuthHeader() }
+        });
+        alert("Database successfully reset and seeded with 17 new Goldmans Gambit stocks!");
+        window.location.reload();
+      } catch (e) {
+        console.error("Failed to reset database", e);
+        alert("Failed to reset database");
+      }
+    }
+  }
+
   useEffect(() => {
     getFlag();
   }, [])
@@ -679,12 +694,15 @@ const BigBlackSwitch = () => {
     <Card className={'w-full p-8'}>
       <CardContent>
         <h1 className={'text-5xl font-black text-white'}>the big switch (EVENT IS {flag.value ? 'ON' : 'OFF'})</h1>
-        <div className={'mt-4 gap-4 flex'}>
+        <div className={'mt-4 gap-4 flex flex-wrap'}>
           <Button className={flag.value ? 'pointer-events-none opacity-50': ''} onClick={resumeFlag}>
             Resume Event
           </Button>
           <Button className={!flag.value ? 'pointer-events-none opacity-50' : ''} onClick={pauseFlag}>
             Pause Event
+          </Button>
+          <Button variant="destructive" onClick={resetDatabase}>
+            Reset Database (Ingenium 2026)
           </Button>
         </div>
       </CardContent>
