@@ -12,8 +12,8 @@ export class FlagsController {
 
   @Post('/start')
   @UseGuards(AdminKeyGuard)
-  async startGame() {
-    return this.flagsService.start();
+  async startGame(@Body() body?: { durationSeconds?: number }) {
+    return this.flagsService.start(body?.durationSeconds);
   }
 
   @Post('/pause')

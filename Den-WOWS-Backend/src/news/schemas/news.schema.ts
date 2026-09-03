@@ -17,9 +17,6 @@ export class News {
 
   @Prop({ required: true })
   effects: StockEffect[];
-
-  @Prop({ required: true })
-  effectAt: number; // time in seconds
 }
 
 export const NewsSchema = SchemaFactory.createForClass(News);

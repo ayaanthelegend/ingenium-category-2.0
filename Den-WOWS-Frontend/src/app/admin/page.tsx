@@ -394,8 +394,8 @@ const Stocks = () => {
 const NewsThing = () => {
   const [stocks, setStocks] = useState<Array<Stock>>([])
   const [news, setNews] = useState<Array<News>>([])
-  const [createNewsDto, setCreateNewsDto] = useState<CreateNewsDto>({ headline: '', desc: '', effectAt: 0, effects: [], sequence: 0})
-  const [updateNewsDto, setUpdateNewsDto] = useState<UpdateNewsDto>({ headline: '', desc: '', effectAt: 0, sequence: 0})
+  const [createNewsDto, setCreateNewsDto] = useState<CreateNewsDto>({ headline: '', desc: '', effects: [], sequence: 0})
+  const [updateNewsDto, setUpdateNewsDto] = useState<UpdateNewsDto>({ headline: '', desc: '', sequence: 0})
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [createError, setCreateError] = useState("");
@@ -501,7 +501,7 @@ const NewsThing = () => {
                 <Button onClick={async () => {
                   setCreateError("");
                   await getStocks();
-                  setCreateNewsDto({ headline: '', desc: '', effectAt: 0, effects: initiaiseStockEffects('create'), sequence: 0});
+                  setCreateNewsDto({ headline: '', desc: '', effects: initiaiseStockEffects('create'), sequence: 0});
                 }}>
                   New News
                 </Button>
@@ -526,8 +526,6 @@ const NewsThing = () => {
                       <Input onChange={(e) => setCreateNewsDto({...createNewsDto, desc: e.target.value})} value={createNewsDto.desc} placeholder={'Name'}/>
                       <Label>News Sequence</Label>
                       <Input onChange={(e) => setCreateNewsDto({...createNewsDto, sequence: Number(e.target.value)})} value={createNewsDto.sequence} placeholder={'Sequence'} type={'number'}/>
-                      <Label>News Timer (Seconds)</Label>
-                      <Input onChange={(e) => setCreateNewsDto({...createNewsDto, effectAt: Number(e.target.value)})} value={createNewsDto.effectAt} placeholder={'Seconds'} type={'number'}/>
                     </div>
                   </div>
                   <div className="grid focus:outline-none focus:ring-0 [&_*]:focus:outline-none [&_*]:focus:ring-0">
@@ -582,7 +580,6 @@ const NewsThing = () => {
                           setUpdateNewsDto({
                             headline: n.headline,
                             desc: n.desc,
-                            effectAt: n.effectAt,
                             sequence: n.sequence,
                           });
                           setIsEditOpen(true);
@@ -610,8 +607,6 @@ const NewsThing = () => {
                               <Input onChange={(e) => setUpdateNewsDto({...updateNewsDto, desc: e.target.value})} value={updateNewsDto.desc} placeholder={'Name'}/>
                               <Label>News Sequence</Label>
                               <Input onChange={(e) => setUpdateNewsDto({...updateNewsDto, sequence: Number(e.target.value)})} value={updateNewsDto.sequence} placeholder={'Sequence'} type={'number'}/>
-                              <Label>News Timer (Seconds)</Label>
-                              <Input onChange={(e) => setUpdateNewsDto({...updateNewsDto, effectAt: Number(e.target.value)})} value={updateNewsDto.effectAt} placeholder={'Seconds'} type={'number'}/>
                             </div>
                           </div>
                           <DialogFooter className="mt-4">
@@ -637,6 +632,7 @@ const NewsThing = () => {
 
 const BigBlackSwitch = () => {
   const [flag, setFlag] = useState<Flag | null>(null)
+  const [durationMinutes, setDurationMinutes] = useState<number | string>("")
 
   const getFlag = async () => {
     try {
@@ -644,6 +640,9 @@ const BigBlackSwitch = () => {
         headers: { Authorization: getAdminAuthHeader() }
       });
       setFlag(resp.data);
+      if (resp.data && resp.data.roundDurationSeconds) {
+        setDurationMinutes(resp.data.roundDurationSeconds / 60);
+      }
     } catch (e) {
       console.error("Failed to fetch flag", e);
     }
@@ -662,7 +661,8 @@ const BigBlackSwitch = () => {
 
   const resumeFlag = async () => {
     try {
-      await axios.post(`${serverUrl}/flags/start`, {}, {
+      const durationSeconds = durationMinutes ? Math.round(Number(durationMinutes) * 60) : 0;
+      await axios.post(`${serverUrl}/flags/start`, { durationSeconds }, {
         headers: { Authorization: getAdminAuthHeader() }
       });
       window.location.reload();
@@ -700,12 +700,22 @@ const BigBlackSwitch = () => {
     <Card className={'w-full p-8'}>
       <CardContent>
         <h1 className={'text-5xl font-black text-white'}>the big switch (EVENT IS {flag.value ? 'ON' : 'OFF'})</h1>
-        <div className={'mt-4 gap-4 flex flex-wrap'}>
+        <div className={'mt-4 gap-4 flex flex-wrap items-end'}>
+          <div className={'flex flex-col gap-2'}>
+            <Label className="text-white">Round Duration (minutes)</Label>
+            <Input
+              type="number"
+              placeholder="Minutes (e.g. 15)"
+              value={durationMinutes}
+              onChange={(e) => setDurationMinutes(e.target.value)}
+              className="w-48 text-white bg-black/50"
+            />
+          </div>
           <Button className={flag.value ? 'pointer-events-none opacity-50': ''} onClick={resumeFlag}>
-            Resume Event
+            Ateeb says go
           </Button>
           <Button className={!flag.value ? 'pointer-events-none opacity-50' : ''} onClick={pauseFlag}>
-            Pause Event
+            Ateeb says pause
           </Button>
           <Button variant="destructive" onClick={resetDatabase}>
             Reset Database (Ingenium 2026)

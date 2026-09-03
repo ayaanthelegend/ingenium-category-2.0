@@ -21,41 +21,25 @@ export class StocksService {
   async getStocksBasedOnNews() {
     const stocks = await this.getStocks();
     const allNews = await this.newsService.getNews();
-    const flag = await this.flagsService.getFullFlag('global')
+    const sorted = [...allNews].sort((a, b) => a.sequence - b.sequence);
 
-    if (flag) {
-      const sorted = [...allNews].sort((a, b) => a.sequence - b.sequence);
-      const triggered: News[] = [];
-      let accumulatedTime = 0;
+    for (const stock of stocks) {
+      const initialPrice = stock.price ?? 100;
+      const history: number[] = [initialPrice];
+      let currentPrice = initialPrice;
 
       for (const item of sorted) {
-        accumulatedTime += item.effectAt;
-        const startTime = flag.startedAt ? (typeof flag.startedAt === 'number' ? flag.startedAt : new Date(flag.startedAt).getTime()) : Date.now();
-        if (accumulatedTime <= ((Date.now() - startTime) / 1000)) {
-          triggered.push(item);
-        } else {
-          break;
-        }
-      }
-
-      for (const stock of stocks) {
-        const initialPrice = stock.price ?? 100;
-        const history: number[] = [initialPrice];
-        let currentPrice = initialPrice;
-
-        for (const item of triggered) {
-          for (const effect of item.effects) {
-            if ((stock._id as Types.ObjectId).toHexString() === effect.id) {
-              currentPrice = effect.newBuy;
-              history.push(currentPrice);
-            }
+        for (const effect of item.effects || []) {
+          if ((stock._id as Types.ObjectId).toHexString() === effect.id) {
+            currentPrice = effect.newBuy;
+            history.push(currentPrice);
           }
         }
-        stock.price = currentPrice;
-        stock.priceHistory = history;
       }
-      return stocks;
-    } else throw new InternalServerErrorException();
+      stock.price = currentPrice;
+      stock.priceHistory = history;
+    }
+    return stocks;
   }
 
   async buyStock(id: string, amount: number, userId: string) {

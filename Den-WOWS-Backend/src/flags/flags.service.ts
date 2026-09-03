@@ -7,18 +7,15 @@ import { Flag } from './schemas/flag.schema';
 export class FlagsService {
   constructor(@InjectModel(Flag.name) private flagModel: Model<Flag>) {}
 
-  private async checkAutoPause(flag: any): Promise<any> {
-    if (flag && flag.key === 'global' && flag.value === true) {
-      const startTime = flag.startedAt ? (typeof flag.startedAt === 'number' ? flag.startedAt : new Date(flag.startedAt).getTime()) : Date.now();
-      const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
-      if (elapsedSeconds >= 120) {
-        flag.value = false;
-        flag.accumulatedSeconds = (flag.accumulatedSeconds || 0) + 120;
-        await flag.save();
-        console.log('[FlagsService] 120s auto-pause triggered. Global flag set to false.');
-      }
-    }
-    return flag;
+  getElapsedSeconds(flag: any): number {
+    if (!flag) return 0;
+    const accumulated = flag.accumulatedSeconds || 0;
+    if (!flag.value) return accumulated;
+    const startTime = flag.startedAt
+      ? (typeof flag.startedAt === 'number' ? flag.startedAt : new Date(flag.startedAt).getTime())
+      : Date.now();
+    const currentSegment = Math.max(0, Math.floor((Date.now() - startTime) / 1000));
+    return accumulated + currentSegment;
   }
 
   async getFlag(key: string): Promise<boolean> {
@@ -29,24 +26,53 @@ export class FlagsService {
         value: true,
         startedAt: Date.now(),
         accumulatedSeconds: 0,
+        roundDurationSeconds: 0,
       });
       await flag.save();
     }
-    flag = await this.checkAutoPause(flag);
-    return flag ? flag.value : true;
+    if (!flag.value) return false;
+    const elapsed = this.getElapsedSeconds(flag);
+    if (flag.roundDurationSeconds > 0 && elapsed >= flag.roundDurationSeconds) {
+      return false;
+    }
+    return true;
   }
 
-  async start() {
+  async start(durationSeconds?: number) {
+    const existingFlag = await this.flagModel.findOne({ key: 'global' }).exec();
+    const updateData: any = {
+      startedAt: Date.now(),
+      value: true,
+    };
+
+    if (durationSeconds !== undefined && durationSeconds !== null && !isNaN(Number(durationSeconds))) {
+      updateData.roundDurationSeconds = Number(durationSeconds);
+    }
+
+    const duration = updateData.roundDurationSeconds ?? existingFlag?.roundDurationSeconds ?? 0;
+    const currentElapsed = existingFlag ? this.getElapsedSeconds(existingFlag) : 0;
+
+    if (!existingFlag || existingFlag.accumulatedSeconds === undefined || existingFlag.accumulatedSeconds === null) {
+      updateData.accumulatedSeconds = 0;
+    } else if (duration > 0 && currentElapsed >= duration) {
+      updateData.accumulatedSeconds = 0;
+    }
+
     return this.flagModel.findOneAndUpdate(
       { key: 'global' },
-      { startedAt: Date.now(), value: true },
+      updateData,
       { upsert: true, new: true },
     );
   }
 
   async pause() {
     const flag = await this.flagModel.findOne({ key: 'global' }).exec();
-    const startTime = flag && flag.startedAt ? (typeof flag.startedAt === 'number' ? flag.startedAt : new Date(flag.startedAt).getTime()) : Date.now();
+    if (!flag || !flag.value) {
+      return flag;
+    }
+    const startTime = flag.startedAt
+      ? (typeof flag.startedAt === 'number' ? flag.startedAt : new Date(flag.startedAt).getTime())
+      : Date.now();
     const elapsed = Math.max(0, Math.floor((Date.now() - startTime) / 1000));
     return this.flagModel.findOneAndUpdate(
       { key: 'global' },
@@ -72,16 +98,20 @@ export class FlagsService {
         value: true,
         startedAt: Date.now(),
         accumulatedSeconds: 0,
+        roundDurationSeconds: 0,
       });
       await flag.save();
     }
-    flag = await this.checkAutoPause(flag);
-    if (!flag) return null;
 
     const obj: any = flag.toObject ? flag.toObject() : { ...flag };
-    const startTime = flag.startedAt ? (typeof flag.startedAt === 'number' ? flag.startedAt : new Date(flag.startedAt).getTime()) : Date.now();
-    const elapsed = Math.floor((Date.now() - startTime) / 1000);
-    obj.pauseTimeLeft = flag.value ? Math.max(0, 120 - elapsed) : 0;
+    const elapsed = this.getElapsedSeconds(flag);
+    const duration = flag.roundDurationSeconds || 0;
+    obj.elapsedSeconds = elapsed;
+    obj.roundDurationSeconds = duration;
+    obj.timeLeft = duration > 0 ? Math.max(0, duration - elapsed) : 0;
+    if (duration > 0 && elapsed >= duration) {
+      obj.value = false;
+    }
     return obj;
   }
 

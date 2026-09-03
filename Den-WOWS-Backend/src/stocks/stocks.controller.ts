@@ -22,8 +22,6 @@ export class StocksController {
   constructor(private readonly stocksService: StocksService) {}
 
   @Get('')
-  @RequireFlag('global')
-  @UseGuards(FeatureFlagGuard)
   async getStocks() {
     return this.stocksService.getStocksBasedOnNews()
   }

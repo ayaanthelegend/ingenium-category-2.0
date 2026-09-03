@@ -9,7 +9,4 @@ export class UpdateNewsDto {
 
   @IsNumber()
   sequence: number;
-
-  @IsNumber()
-  effectAt: number
 }

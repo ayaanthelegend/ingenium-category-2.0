@@ -20,7 +20,7 @@ export default function LeaderboardProgram({ users = [], stocks = [] }: { users:
 
   return (
     <div className="w-full flex flex-col justify-center items-center pb-8">
-      <h1 className="text-primary/60 text-3xl font-black text-center">wolves leaderboard</h1>
+      <h1 className="text-primary/60 text-3xl font-black text-center">Gambit's leaderboard</h1>
       <h1 className="text-xl font-light text-center">see where your team stands against the pack</h1>
 
       <Card className="w-full p-4 mt-6 bg-black/40 border-primary/20">

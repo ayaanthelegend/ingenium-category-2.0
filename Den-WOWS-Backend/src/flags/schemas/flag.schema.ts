@@ -14,6 +14,9 @@ export class Flag extends Document {
 
   @Prop()
   accumulatedSeconds: number;
+
+  @Prop({ default: 0 })
+  roundDurationSeconds: number;
 }
 
 export const FlagSchema = SchemaFactory.createForClass(Flag);

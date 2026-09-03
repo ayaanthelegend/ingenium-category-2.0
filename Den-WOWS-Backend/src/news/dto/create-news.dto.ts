@@ -14,7 +14,4 @@ export class CreateNewsDto {
 
   @IsArray()
   effects: StockEffect[];
-
-  @IsNumber()
-  effectAt: number
 }

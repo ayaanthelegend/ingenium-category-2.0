@@ -39,31 +39,25 @@ export interface CreateNewsDto {
   desc: string;
   sequence: number;
   effects: StockEffect[];
-  effectAt: number
 }
 export interface News {
   _id: string;
   headline: string;
-  desc: string
+  desc: string;
   sequence: number;
   effects: StockEffect[];
-  effectAt: number;
 }
 export interface UpdateNewsDto {
   headline: string;
   desc: string;
   sequence: number;
-  effectAt: number
 }
 export interface Flag {
   key: string;
   value: boolean;
   startedAt: number;
   accumulatedSeconds: number;
-}
-export interface User {
-  username: string;
-  password: string;
-  balance: number;
-  stocksOwned: StockUser[];
+  roundDurationSeconds?: number;
+  elapsedSeconds?: number;
+  timeLeft?: number;
 }

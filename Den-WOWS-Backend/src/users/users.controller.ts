@@ -4,7 +4,6 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {AdminKeyGuard} from "../auth/admin-key.guard";
 import {CreateUserDto} from "./dto/create-user.dto";
 import {UpdateUserDto} from "./dto/update-user.dto";
-import {FeatureFlagGuard, RequireFlag} from "../flags/flag.guard";
 
 @Controller('users')
 export class UsersController {
@@ -31,8 +30,6 @@ export class UsersController {
   // Protected route: current user info
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  @RequireFlag('global')
-  @UseGuards(FeatureFlagGuard)
   async me(@Req() req) {
     // req.user is set by JwtStrategy's validate()
     const user = await this.usersService.findById(req.user.sub);
@@ -45,8 +42,6 @@ export class UsersController {
   // Protected route: leaderboard of all teams for players
   @UseGuards(JwtAuthGuard)
   @Get('leaderboard')
-  @RequireFlag('global')
-  @UseGuards(FeatureFlagGuard)
   async getLeaderboard() {
     const users = await this.usersService.getAll();
     return users.map((u) => {

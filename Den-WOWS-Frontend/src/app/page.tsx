@@ -13,7 +13,7 @@ import {
 } from "react-icons/lia";
 import { AiOutlineStock } from "react-icons/ai";
 import { RiBankFill, RiNewspaperLine } from "react-icons/ri";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {motion, useDragControls} from 'framer-motion';
 import 'react-resizable/css/styles.css';
 import InfoProgram from "@/components/programs/info";
@@ -24,7 +24,7 @@ import StockProgram from "@/components/programs/stock_market";
 import BankProgram from "@/components/programs/bank";
 import NewsProgram from "@/components/programs/news";
 import LeaderboardProgram from "@/components/programs/leaderboard";
-import {News, Stock, User} from "@/components/schemas";
+import {News, Stock, User, Flag} from "@/components/schemas";
 import axios from "axios";
 
 
@@ -39,14 +39,15 @@ export default function Home() {
   const [update, setUpdate] = useState('')
   const [timeLeft, setTimeLeft] = useState(0)
   const [flag, setFlag] = useState<Flag | null>(null)
-  const [autoPauseTimeLeft, setAutoPauseTimeLeft] = useState(0)
+  const [newsFlash, setNewsFlash] = useState(false)
+  const prevLatestNewsIdRef = useRef<string | null>(null)
 
   const getFlag = async () => {
     try {
       const resp = await axios.get(`${serverUrl}/flags/global`);
       setFlag(resp.data);
       if (resp.data) {
-        setAutoPauseTimeLeft(resp.data.pauseTimeLeft ?? 0);
+        setTimeLeft(resp.data.timeLeft ?? 0);
       }
     } catch {}
   };
@@ -58,14 +59,20 @@ export default function Home() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         }
       })
-      const sortedNews = [...(resp.data || [])].sort((a, b) => a.sequence - b.sequence)
-      await getTimeLeft()
+      const newsList: News[] = resp.data || [];
+      const sortedNews = [...newsList].sort((a, b) => a.sequence - b.sequence)
       if (sortedNews.length > 0) {
-        setUpdate(sortedNews[sortedNews.length - 1].headline || '');
+        const latest = sortedNews[sortedNews.length - 1];
+        setUpdate(latest.headline || '');
+        if (prevLatestNewsIdRef.current !== null && prevLatestNewsIdRef.current !== latest._id) {
+          setNewsFlash(true);
+          setTimeout(() => setNewsFlash(false), 3000);
+        }
+        prevLatestNewsIdRef.current = latest._id;
       } else {
         setUpdate('');
       }
-      setNews(resp.data || [])
+      setNews(newsList)
     } catch {}
   }
 
@@ -110,19 +117,6 @@ export default function Home() {
     getFlag();
   };
 
-  const getTimeLeft = async () => {
-    try {
-
-      const resp = await axios.get(`${serverUrl}/news/time-left`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        }
-      })
-
-      setTimeLeft(resp.data?.timeLeft || 0)
-    } catch {}
-  }
-
   const programComponents: { [key: string]: React.ReactElement } = {
     about: <InfoProgram/>,
     help: <HelpProgram/>,
@@ -142,7 +136,6 @@ export default function Home() {
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-      setAutoPauseTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
 
     return () => clearInterval(interval);
@@ -163,6 +156,14 @@ export default function Home() {
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getNews();
+    }, 2000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const programs: {
@@ -218,6 +219,15 @@ export default function Home() {
     setOpenWindows((prev) => prev.filter((n) => n.name !== name));
   };
 
+  const formatTimeLeft = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    if (mins > 0) {
+      return `${mins}m ${secs}s`;
+    }
+    return `${secs}s`;
+  };
+
   return (
     <div className="h-screen flex flex-col justify-between items-center p-16 bg-black/50">
       <h1 className="fixed bottom-4 z-50 right-4 text-xs text-white/50 font-light">
@@ -240,8 +250,7 @@ export default function Home() {
           <h2 className="text-lg font-bold text-red-500 mt-1">[ EVENT PAUSED ]</h2>
         ) : (
           <div className="flex flex-col items-end mt-1 text-sm text-white/80 font-light">
-            <h2>Next Auto-Pause: <span className="font-bold text-amber-400">{autoPauseTimeLeft}s</span></h2>
-            <h2>Next News Event: <span className="font-bold text-amber-400">{timeLeft > 0 ? `${timeLeft}s` : 'None'}</span></h2>
+            <h2>Round Time Remaining: <span className="font-bold text-amber-400">{formatTimeLeft(timeLeft)}</span></h2>
           </div>
         )}
         <h2 className="text-sm font-light text-white/60 mt-2">logged in as : {me?.username}</h2>
@@ -250,9 +259,12 @@ export default function Home() {
           animate={{ opacity: 1, translateY: '0%' }}
           transition={{ duration: 1.5, delay: 1.5 }}
         >
-          <Card className={'p-0 w-96 mt-8'}>
+          <Card className={`p-0 w-96 mt-8 transition-all duration-500 ${newsFlash ? 'ring-4 ring-amber-400 bg-amber-500/30 animate-pulse' : ''}`}>
             <CardContent className={'p-4'}>
-              <h1 className={'w-full text-start text-white/80 font-black text-xl'}>Updates</h1>
+              <h1 className={'w-full text-start text-white/80 font-black text-xl flex items-center justify-between'}>
+                <span>Updates</span>
+                {newsFlash && <span className="text-xs text-amber-400 animate-bounce font-bold">★ NEW UPDATE</span>}
+              </h1>
               <h1 className={`w-full text-start ${update ? 'text-white' : 'text-white/30'}`}>{update || "No Updates Found"}</h1>
             </CardContent>
           </Card>
@@ -340,8 +352,10 @@ export default function Home() {
               >
                 <Tooltip>
                   <TooltipTrigger onClick={() => openProgram(program.name, program.click)}>
-                    <div className="w-[48px] h-[48px] flex justify-center items-center bg-primary/10 border border-primary/40 rounded-xl transition duration-500 hover:-translate-y-6 hover:scale-125 cursor-pointer">
-                      <program.item className="text-primary/40" size={32} />
+                    <div className={`w-[48px] h-[48px] flex justify-center items-center bg-primary/10 border border-primary/40 rounded-xl transition duration-500 hover:-translate-y-6 hover:scale-125 cursor-pointer ${
+                      newsFlash && program.name === 'news' ? 'ring-4 ring-amber-400 bg-amber-500/30 animate-bounce' : ''
+                    }`}>
+                      <program.item className={newsFlash && program.name === 'news' ? "text-amber-400" : "text-primary/40"} size={32} />
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
