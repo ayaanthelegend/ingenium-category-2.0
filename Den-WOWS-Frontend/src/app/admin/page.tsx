@@ -38,6 +38,16 @@ const getAdminAuthHeader = () => {
   return `Basic ${credentials}`;
 };
 
+const handleAdminAuthError = (e: unknown, router: any) => {
+  if (axios.isAxiosError(e) && e.response?.status === 401) {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('adminUsername');
+      localStorage.removeItem('adminPassword');
+    }
+    router.push('/admin/login');
+  }
+};
+
 import { useRouter } from "next/navigation";
 
 export default function Admin() {
@@ -67,6 +77,7 @@ export default function Admin() {
 }
 
 const Users = () => {
+  const router = useRouter();
   const [users, setUsers] = useState<Array<User>>([]);
   const [createUserDto, setCreateUserDto] = useState<CreateUserDto>({ username: "", password: "", balance: 200000 });
   const [updateUserDto, setUpdateUserDto] = useState<UpdateUserDto>({ username: "", balance: 0 });
@@ -85,6 +96,7 @@ const Users = () => {
       setUsers(resp.data || []);
     } catch (e) {
       console.error("Failed to fetch users", e);
+      handleAdminAuthError(e, router);
     }
   }
 
@@ -270,6 +282,7 @@ const Users = () => {
 }
 
 const Stocks = () => {
+  const router = useRouter();
   const [stocks, setStocks] = useState<Array<Stock>>([])
   const [createStockDto, setCreateStockDto] = useState<CreateStockDto>({ name: "", price: 0 });
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -283,6 +296,7 @@ const Stocks = () => {
       setStocks(resp.data || []);
     } catch (e) {
       console.error("Failed to fetch stocks", e);
+      handleAdminAuthError(e, router);
     }
   }
 
@@ -392,6 +406,7 @@ const Stocks = () => {
 }
 
 const NewsThing = () => {
+  const router = useRouter();
   const [stocks, setStocks] = useState<Array<Stock>>([])
   const [news, setNews] = useState<Array<News>>([])
   const [createNewsDto, setCreateNewsDto] = useState<CreateNewsDto>({ headline: '', desc: '', effects: [], sequence: 0})
@@ -415,6 +430,7 @@ const NewsThing = () => {
       setStocks(resp.data || []);
     } catch (e) {
       console.error("Failed to fetch stocks", e);
+      handleAdminAuthError(e, router);
     }
   }
 
@@ -471,6 +487,7 @@ const NewsThing = () => {
       await getStocks();
     } catch (e) {
       console.error("Failed to delete news", e);
+      handleAdminAuthError(e, router);
     }
   }
 
@@ -482,6 +499,7 @@ const NewsThing = () => {
       setNews(resp.data || []);
     } catch (e) {
       console.error("Failed to fetch news", e);
+      handleAdminAuthError(e, router);
     }
   }
 
@@ -703,6 +721,7 @@ const BigBlackSwitch = () => {
 }
 
 const LeaderboardAhh = () => {
+  const router = useRouter();
   const [users, setUsers] = useState<Array<User>>([])
   const [stocks, setStocks] = useState<Array<Stock>>([])
 
@@ -714,6 +733,7 @@ const LeaderboardAhh = () => {
       setUsers(resp.data || []);
     } catch (e) {
       console.error("Failed to fetch users for scoreboard", e);
+      handleAdminAuthError(e, router);
     }
   }
 
@@ -725,6 +745,7 @@ const LeaderboardAhh = () => {
       setStocks(resp.data || []);
     } catch (e) {
       console.error("Failed to fetch stocks for scoreboard", e);
+      handleAdminAuthError(e, router);
     }
   }
 

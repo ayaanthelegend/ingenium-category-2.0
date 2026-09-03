@@ -30,7 +30,7 @@ export class StocksService {
 
       for (const item of sorted) {
         for (const effect of item.effects || []) {
-          if ((stock._id as Types.ObjectId).toHexString() === effect.id) {
+          if (String(stock._id) === effect.id) {
             currentPrice = effect.newBuy;
             history.push(currentPrice);
           }
@@ -46,13 +46,13 @@ export class StocksService {
     const user = await this.usersService.findById(userId)
     if (!user) throw new UnauthorizedException()
     const stocks = await this.getStocksBasedOnNews()
-    const stock = stocks.find(stock => (stock._id as Types.ObjectId).toHexString() === id);
+    const stock = stocks.find(stock => String(stock._id) === id);
     if (stock) {
       const priceRequired = amount * stock.price
       if (user.balance >= priceRequired) {
 
         await this.usersService.updateStock(user, stock, amount)
-        return await this.usersService.decrementBalance((user._id as Types.ObjectId).toHexString(), priceRequired)
+        return await this.usersService.decrementBalance(String(user._id), priceRequired)
       } else throw new BadRequestException(`You do not have enough balance. Required : $${priceRequired}, You have : $${user.balance}`)
     } else throw new InternalServerErrorException()
   }
@@ -61,13 +61,13 @@ export class StocksService {
     const user = await this.usersService.findById(userId)
     if (!user) throw new UnauthorizedException()
     const stocks = await this.getStocksBasedOnNews()
-    const stock = stocks.find(stock => (stock._id as Types.ObjectId).toHexString() === id);
+    const stock = stocks.find(stock => String(stock._id) === id);
     if (stock) {
       const stockInUser = user.stocksOwned.find(s => s.id == id)
       const priceRequired = amount * stock.price
       if (stockInUser && stockInUser.amount >= amount) {
         await this.usersService.updateStock(user, stock, -1 * amount)
-        return await this.usersService.incrementBalance((user._id as Types.ObjectId).toHexString(), priceRequired)
+        return await this.usersService.incrementBalance(String(user._id), priceRequired)
       } else throw new BadRequestException(`You do not have enough stocks. Required : ${amount}, You have : ${stockInUser ? stockInUser.amount : 0}`)
     } else throw new InternalServerErrorException()
   }

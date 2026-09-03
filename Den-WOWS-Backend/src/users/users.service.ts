@@ -54,7 +54,7 @@ export class UsersService {
     if (!userWStocks.stocksOwned) {
       userWStocks.stocksOwned = [];
     }
-    const stockIndex = userWStocks.stocksOwned.findIndex(s => s.id == (stock._id as Types.ObjectId).toHexString())
+    const stockIndex = userWStocks.stocksOwned.findIndex(s => s.id == String(stock._id))
     if (stockIndex >= 0) {
       userWStocks.stocksOwned[stockIndex].amount += amount
       userWStocks.stocksOwned[stockIndex].boughtAt = new Date()
@@ -62,7 +62,7 @@ export class UsersService {
     } else {
       userWStocks.stocksOwned.push(
         {
-          id: (stock._id as Types.ObjectId).toHexString(),
+          id: String(stock._id),
           amount,
           boughtAt: new Date(),
           buy: stock.price

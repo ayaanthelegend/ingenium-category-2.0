@@ -6,16 +6,52 @@ import {Button} from "@/components/ui/button";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
 
+import axios from "axios";
+
+const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const serverUrl = (rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : `https://${rawUrl}`).replace(/\/+$/, '');
+
 export default function Login() {
   const router = useRouter()
   const [username, setUsername] = useState<string>("")
   const [password, setPassword] = useState<string>("")
+  const [error, setError] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(false)
 
-  const login = async () => {
-    localStorage.setItem('adminUsername', username.trim())
-    localStorage.setItem('adminPassword', password.trim())
-    router.push('/admin')
+  const login = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setError("");
+    const u = username.trim();
+    const p = password.trim();
+    if (!u || !p) {
+      setError("Please enter both username and password");
+      return;
+    }
+    setLoading(true);
+    const credentials = typeof window !== 'undefined' && typeof window.btoa === 'function'
+      ? window.btoa(`${u}:${p}`)
+      : (typeof Buffer !== 'undefined' ? Buffer.from(`${u}:${p}`).toString('base64') : '');
+
+    try {
+      await axios.get(`${serverUrl}/users/all`, {
+        headers: { Authorization: `Basic ${credentials}` }
+      });
+      localStorage.setItem('adminUsername', u);
+      localStorage.setItem('adminPassword', p);
+      router.push('/admin');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        setError("Invalid admin username or password.");
+      } else {
+        localStorage.setItem('adminUsername', u);
+        localStorage.setItem('adminPassword', p);
+        router.push('/admin');
+      }
+    } finally {
+      setLoading(false);
+    }
   }
+
   return (
     <div className="flex justify-between items-center flex-col min-h-screen bg-black/10 bg-black/50">
       <div className={'w-full flex justify-end items-end flex-col p-16'}>
@@ -29,13 +65,18 @@ export default function Login() {
             <h1 className={'font-black text-3xl text-white/80'}>hello there</h1>
             <h1 className={'font-black ml-1 text-primary/40'}>admins only</h1>
           </div>
-          <div className={'flex flex-row mt-2 gap-2 justify-start items-start'}>
-            <InputWithIcon icon={<LiaAtSolid/>} onChange={(e) => setUsername(e.target.value)} placeholder={'username'}/>
-            <InputWithIcon type={"password"} icon={<LiaAsteriskSolid/>} onChange={(e) => setPassword(e.target.value)} placeholder={'password'}/>
-            <Button onClick={() => {
-              login()
-            }}><LiaGreaterThanSolid/></Button>
-          </div>
+          <form onSubmit={login} className={'flex flex-col mt-2 justify-start items-start w-full'}>
+            <div className={'flex flex-row gap-2 justify-start items-center'}>
+              <InputWithIcon icon={<LiaAtSolid/>} onChange={(e) => setUsername(e.target.value)} value={username} placeholder={'username'}/>
+              <InputWithIcon type={"password"} icon={<LiaAsteriskSolid/>} onChange={(e) => setPassword(e.target.value)} value={password} placeholder={'password'}/>
+              <Button type="submit" disabled={loading}><LiaGreaterThanSolid/></Button>
+            </div>
+            {error && (
+              <div className="p-2 mt-3 text-xs bg-red-500/20 border border-red-500 text-red-300 rounded font-semibold">
+                {error}
+              </div>
+            )}
+          </form>
         </div>
       </div>
     </div>
