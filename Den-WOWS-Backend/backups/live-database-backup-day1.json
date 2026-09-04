@@ -1,0 +1,821 @@
+{
+  "exportedAt": "2026-09-04T17:09:32.885Z",
+  "source": "https://ingenium-category-2-0.onrender.com",
+  "counts": {
+    "users": 6,
+    "stocks": 17,
+    "news": 6,
+    "flags": 1
+  },
+  "collections": {
+    "users": [
+      {
+        "_id": "6a9abcfcc5d0e515828e1d1c",
+        "username": "LGS 55 D",
+        "password": "$2b$10$jzKmF1gjobWnUTEapCNnWuIVIKTwRJXNyZwX15bOPy3SjTNcAxTrq",
+        "balance": 67830,
+        "stocksOwned": [
+          {
+            "id": "68d5b10965b970d1077c5009",
+            "amount": 1,
+            "boughtAt": "2026-09-04T14:25:28.033Z",
+            "buy": 520
+          },
+          {
+            "id": "68d5b11165b970d1077c5017",
+            "amount": 2,
+            "boughtAt": "2026-09-04T14:13:04.705Z",
+            "buy": 450
+          },
+          {
+            "id": "68d5b10165b970d1077c5001",
+            "amount": 2,
+            "boughtAt": "2026-09-04T14:27:10.731Z",
+            "buy": 1150
+          },
+          {
+            "id": "68d5b10b65b970d1077c5011",
+            "amount": 1,
+            "boughtAt": "2026-09-04T13:32:32.959Z",
+            "buy": 1500
+          },
+          {
+            "id": "68d5b10c65b970d1077c5012",
+            "amount": 0,
+            "boughtAt": "2026-09-04T14:01:14.945Z",
+            "buy": 1100
+          },
+          {
+            "id": "68d5b11065b970d1077c5016",
+            "amount": 7,
+            "boughtAt": "2026-09-04T14:13:42.378Z",
+            "buy": 1970
+          },
+          {
+            "id": "68d5b10d65b970d1077c5013",
+            "amount": 2,
+            "boughtAt": "2026-09-04T14:06:16.090Z",
+            "buy": 1080
+          },
+          {
+            "id": "68d5b10265b970d1077c5002",
+            "amount": 4,
+            "boughtAt": "2026-09-04T14:28:14.848Z",
+            "buy": 950
+          },
+          {
+            "id": "68d5b10765b970d1077c5007",
+            "amount": 3,
+            "boughtAt": "2026-09-04T14:06:33.305Z",
+            "buy": 1300
+          },
+          {
+            "id": "68d5b10f65b970d1077c5015",
+            "amount": 0,
+            "boughtAt": "2026-09-04T14:16:49.874Z",
+            "buy": 1850
+          },
+          {
+            "id": "68d5b10865b970d1077c5008",
+            "amount": 1,
+            "boughtAt": "2026-09-04T14:07:26.659Z",
+            "buy": 1400
+          },
+          {
+            "id": "68d5b10665b970d1077c5006",
+            "amount": 2,
+            "boughtAt": "2026-09-04T14:08:21.043Z",
+            "buy": 550
+          },
+          {
+            "id": "68d5b10a65b970d1077c5010",
+            "amount": 0,
+            "boughtAt": "2026-09-04T14:26:50.550Z",
+            "buy": 1040
+          }
+        ],
+        "createdAt": "2026-09-04T12:43:40.825Z",
+        "updatedAt": "2026-09-04T14:28:15.093Z",
+        "__v": 0
+      },
+      {
+        "_id": "6a9abe27c5d0e515828e1d61",
+        "username": "Pine C",
+        "password": "$2b$10$Fuxte5n0fOIwD9etILu2weY8FVWvOV93LaWG/AynZRSnPrU2L.i4S",
+        "balance": 34450,
+        "stocksOwned": [
+          {
+            "id": "68d5b10d65b970d1077c5013",
+            "amount": 10,
+            "boughtAt": "2026-09-04T14:27:23.314Z",
+            "buy": 1080
+          },
+          {
+            "id": "68d5b10865b970d1077c5008",
+            "amount": 5,
+            "boughtAt": "2026-09-04T14:27:59.859Z",
+            "buy": 1400
+          },
+          {
+            "id": "68d5b10e65b970d1077c5014",
+            "amount": 0,
+            "boughtAt": "2026-09-04T14:10:21.813Z",
+            "buy": 750
+          },
+          {
+            "id": "68d5b10f65b970d1077c5015",
+            "amount": 10,
+            "boughtAt": "2026-09-04T14:30:05.185Z",
+            "buy": 1850
+          },
+          {
+            "id": "68d5b10265b970d1077c5002",
+            "amount": 25,
+            "boughtAt": "2026-09-04T14:28:46.532Z",
+            "buy": 950
+          },
+          {
+            "id": "68d5b10765b970d1077c5007",
+            "amount": 10,
+            "boughtAt": "2026-09-04T14:29:55.345Z",
+            "buy": 1300
+          }
+        ],
+        "createdAt": "2026-09-04T12:48:39.215Z",
+        "updatedAt": "2026-09-04T14:30:05.420Z",
+        "__v": 0
+      },
+      {
+        "_id": "6a9abfeec5d0e515828e2013",
+        "username": "ALMA A",
+        "password": "$2b$10$uCRw.vYl6V9BKpXhcy0W4Owr2iq.1j2qwvGdy90tLdjeGAj4R2NSC",
+        "balance": 220,
+        "stocksOwned": [
+          {
+            "id": "68d5b10d65b970d1077c5013",
+            "amount": 35,
+            "boughtAt": "2026-09-04T14:07:55.731Z",
+            "buy": 1080
+          },
+          {
+            "id": "68d5b10365b970d1077c5003",
+            "amount": 0,
+            "boughtAt": "2026-09-04T14:05:31.745Z",
+            "buy": 600
+          },
+          {
+            "id": "68d5b11065b970d1077c5016",
+            "amount": 12,
+            "boughtAt": "2026-09-04T14:27:10.158Z",
+            "buy": 2250
+          },
+          {
+            "id": "68d5b10b65b970d1077c5011",
+            "amount": 0,
+            "boughtAt": "2026-09-04T14:03:17.531Z",
+            "buy": 1420
+          },
+          {
+            "id": "68d5b10865b970d1077c5008",
+            "amount": 0,
+            "boughtAt": "2026-09-04T14:05:49.756Z",
+            "buy": 1400
+          },
+          {
+            "id": "68d5b10f65b970d1077c5015",
+            "amount": 9,
+            "boughtAt": "2026-09-04T14:26:49.435Z",
+            "buy": 1850
+          },
+          {
+            "id": "68d5b10765b970d1077c5007",
+            "amount": 0,
+            "boughtAt": "2026-09-04T14:16:48.311Z",
+            "buy": 1300
+          },
+          {
+            "id": "68d5b10e65b970d1077c5014",
+            "amount": 0,
+            "boughtAt": "2026-09-04T14:15:46.267Z",
+            "buy": 750
+          },
+          {
+            "id": "68d5b10265b970d1077c5002",
+            "amount": 15,
+            "boughtAt": "2026-09-04T14:26:59.342Z",
+            "buy": 950
+          },
+          {
+            "id": "68d5b10965b970d1077c5009",
+            "amount": 10,
+            "boughtAt": "2026-09-04T14:27:28.038Z",
+            "buy": 520
+          },
+          {
+            "id": "68d5b11165b970d1077c5017",
+            "amount": 17,
+            "boughtAt": "2026-09-04T14:29:38.510Z",
+            "buy": 450
+          }
+        ],
+        "createdAt": "2026-09-04T12:56:14.519Z",
+        "updatedAt": "2026-09-04T14:29:38.746Z",
+        "__v": 0
+      },
+      {
+        "_id": "6a9ac02cc5d0e515828e20b5",
+        "username": "ALMA B",
+        "password": "$2b$10$iMscAUEewgC4OLwoDsEq6OeAmz0BckzCik5KgF8xzSMzbqEWWF2AK",
+        "balance": 2560,
+        "stocksOwned": [
+          {
+            "id": "68d5b10d65b970d1077c5013",
+            "amount": 49,
+            "boughtAt": "2026-09-04T14:25:50.913Z",
+            "buy": 1080
+          },
+          {
+            "id": "68d5b10865b970d1077c5008",
+            "amount": 24,
+            "boughtAt": "2026-09-04T14:09:16.748Z",
+            "buy": 1400
+          },
+          {
+            "id": "68d5b10b65b970d1077c5011",
+            "amount": 3,
+            "boughtAt": "2026-09-04T14:16:50.984Z",
+            "buy": 1420
+          },
+          {
+            "id": "68d5b10f65b970d1077c5015",
+            "amount": 4,
+            "boughtAt": "2026-09-04T14:28:46.944Z",
+            "buy": 1850
+          },
+          {
+            "id": "68d5b11065b970d1077c5016",
+            "amount": 0,
+            "boughtAt": "2026-09-04T14:25:10.019Z",
+            "buy": 2250
+          },
+          {
+            "id": "68d5b10265b970d1077c5002",
+            "amount": 5,
+            "boughtAt": "2026-09-04T14:28:55.173Z",
+            "buy": 950
+          },
+          {
+            "id": "68d5b11165b970d1077c5017",
+            "amount": 4,
+            "boughtAt": "2026-09-04T14:26:47.623Z",
+            "buy": 450
+          }
+        ],
+        "createdAt": "2026-09-04T12:57:16.121Z",
+        "updatedAt": "2026-09-04T14:28:55.408Z",
+        "__v": 0
+      },
+      {
+        "_id": "6a9ac0b1c5d0e515828e22dd",
+        "username": "AC J",
+        "password": "$2b$10$4C3Q/B141VR6rR/fvhXrketdt6qkoLLpyxk0LNDFBhyHIRkSoamAC",
+        "balance": 1800,
+        "stocksOwned": [
+          {
+            "id": "68d5b10d65b970d1077c5013",
+            "amount": 50,
+            "boughtAt": "2026-09-04T13:33:11.619Z",
+            "buy": 900
+          },
+          {
+            "id": "68d5b10365b970d1077c5003",
+            "amount": 20,
+            "boughtAt": "2026-09-04T13:32:47.694Z",
+            "buy": 600
+          },
+          {
+            "id": "68d5b10465b970d1077c5004",
+            "amount": 10,
+            "boughtAt": "2026-09-04T14:17:38.136Z",
+            "buy": 580
+          },
+          {
+            "id": "68d5b10565b970d1077c5005",
+            "amount": 20,
+            "boughtAt": "2026-09-04T13:47:22.737Z",
+            "buy": 450
+          },
+          {
+            "id": "68d5b11165b970d1077c5017",
+            "amount": 5,
+            "boughtAt": "2026-09-04T13:46:18.412Z",
+            "buy": 500
+          },
+          {
+            "id": "68d5b10a65b970d1077c5010",
+            "amount": 8,
+            "boughtAt": "2026-09-04T14:04:42.887Z",
+            "buy": 850
+          },
+          {
+            "id": "68d5b10f65b970d1077c5015",
+            "amount": 8,
+            "boughtAt": "2026-09-04T13:47:47.931Z",
+            "buy": 2000
+          }
+        ],
+        "createdAt": "2026-09-04T12:59:29.014Z",
+        "updatedAt": "2026-09-04T14:17:38.372Z",
+        "__v": 0
+      },
+      {
+        "_id": "6a9ac124c5d0e515828e250c",
+        "username": "LACAS A",
+        "password": "$2b$10$qrIZUHTyBYW85/2qNJCLmOfX5LdsdUM4Vs.W2V96UphVUN366JjKy",
+        "balance": 88810,
+        "stocksOwned": [
+          {
+            "id": "68d5b10f65b970d1077c5015",
+            "amount": 0,
+            "boughtAt": "2026-09-04T14:26:10.012Z",
+            "buy": 1850
+          },
+          {
+            "id": "68d5b10165b970d1077c5001",
+            "amount": 1,
+            "boughtAt": "2026-09-04T14:09:09.465Z",
+            "buy": 1100
+          },
+          {
+            "id": "68d5b10d65b970d1077c5013",
+            "amount": 0,
+            "boughtAt": "2026-09-04T14:27:36.058Z",
+            "buy": 1080
+          },
+          {
+            "id": "68d5b10865b970d1077c5008",
+            "amount": 2,
+            "boughtAt": "2026-09-04T14:06:34.079Z",
+            "buy": 1400
+          },
+          {
+            "id": "68d5b10e65b970d1077c5014",
+            "amount": 0,
+            "boughtAt": "2026-09-04T14:28:19.784Z",
+            "buy": 750
+          },
+          {
+            "id": "68d5b10665b970d1077c5006",
+            "amount": 3,
+            "boughtAt": "2026-09-04T14:08:56.148Z",
+            "buy": 550
+          },
+          {
+            "id": "68d5b10565b970d1077c5005",
+            "amount": 3,
+            "boughtAt": "2026-09-04T14:17:11.704Z",
+            "buy": 450
+          },
+          {
+            "id": "68d5b10b65b970d1077c5011",
+            "amount": 2,
+            "boughtAt": "2026-09-04T14:28:51.231Z",
+            "buy": 1420
+          },
+          {
+            "id": "68d5b10265b970d1077c5002",
+            "amount": 1,
+            "boughtAt": "2026-09-04T14:29:47.478Z",
+            "buy": 950
+          }
+        ],
+        "createdAt": "2026-09-04T13:01:24.524Z",
+        "updatedAt": "2026-09-04T14:29:47.713Z",
+        "__v": 0
+      }
+    ],
+    "stocks": [
+      {
+        "_id": "68d5b10365b970d1077c5003",
+        "name": "BURR (Burr Builders)",
+        "price": 600,
+        "priceHistory": [
+          600,
+          600
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10165b970d1077c5001",
+        "name": "SAB (Sadiq Bancorp)",
+        "price": 1150,
+        "priceHistory": [
+          1200,
+          1200,
+          1100,
+          1150
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10265b970d1077c5002",
+        "name": "ABG (Asif Banking Group)",
+        "price": 950,
+        "priceHistory": [
+          950,
+          950
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10665b970d1077c5006",
+        "name": "SSM (S&S Miners)",
+        "price": 480,
+        "priceHistory": [
+          550,
+          550,
+          480
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10965b970d1077c5009",
+        "name": "AYN (AyaanAutos)",
+        "price": 520,
+        "priceHistory": [
+          700,
+          700,
+          520
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10765b970d1077c5007",
+        "name": "GFE (Gillani FutureEnergies)",
+        "price": 1300,
+        "priceHistory": [
+          1100,
+          1100,
+          1300
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10865b970d1077c5008",
+        "name": "NAS (Nasik's Oilers)",
+        "price": 1400,
+        "priceHistory": [
+          1400,
+          1400
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10a65b970d1077c5010",
+        "name": "MUB (Mubashir Motors)",
+        "price": 1040,
+        "priceHistory": [
+          850,
+          850,
+          1040
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10b65b970d1077c5011",
+        "name": "KIC (Khokhar IT Consultancy)",
+        "price": 1420,
+        "priceHistory": [
+          1500,
+          1500,
+          1420
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10c65b970d1077c5012",
+        "name": "ACS (Atif Cloud Systems)",
+        "price": 1100,
+        "priceHistory": [
+          1350,
+          1350,
+          1100
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10d65b970d1077c5013",
+        "name": "NLB (Nouman Labs)",
+        "price": 1080,
+        "priceHistory": [
+          900,
+          900,
+          1080
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10e65b970d1077c5014",
+        "name": "IAR (Ijaz AstroResearch)",
+        "price": 750,
+        "priceHistory": [
+          750,
+          750
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10f65b970d1077c5015",
+        "name": "ZSG (Zahid-Sial Gold Refinery)",
+        "price": 1850,
+        "priceHistory": [
+          2000,
+          2000,
+          1850
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b11065b970d1077c5016",
+        "name": "ASB (ASB Precious Metals)",
+        "price": 2250,
+        "priceHistory": [
+          1650,
+          1650,
+          1970,
+          2250
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b11165b970d1077c5017",
+        "name": "MLH (Malhi Mills)",
+        "price": 450,
+        "priceHistory": [
+          500,
+          500,
+          450
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10465b970d1077c5004",
+        "name": "OMER (Omer Industries)",
+        "price": 580,
+        "priceHistory": [
+          800,
+          800,
+          580
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      },
+      {
+        "_id": "68d5b10565b970d1077c5005",
+        "name": "K333 (Kashif 333 Mining)",
+        "price": 450,
+        "priceHistory": [
+          450,
+          450
+        ],
+        "createdAt": "2026-08-31T21:44:44.902Z",
+        "updatedAt": "2026-08-31T21:44:44.902Z",
+        "__v": 0
+      }
+    ],
+    "news": [
+      {
+        "_id": "6a9ac792c5d0e515828e4b83",
+        "headline": "PATIENT ZERO CONFIRMED ",
+        "desc": "Nouman Labs Identifies Novel Air-Water Spore-Vector Multiplying Rapidly Across Municipal Water Grids.* * **Elaboration:** Following a routine municipal testing cycle, Nouman Labs isolates a synthetic organic spore capable of surviving chlorination and binding to high-density fluid networks. Panic sweeps urban centers as residential water lines are flagged, leading citizens to hoard bottled resources while health authorities scramble to contain the biological vector before it breaches regional distribution pipelines",
+        "sequence": 1,
+        "effects": [
+          {
+            "id": "68d5b10365b970d1077c5003",
+            "newBuy": 600
+          },
+          {
+            "id": "68d5b10165b970d1077c5001",
+            "newBuy": 1200
+          },
+          {
+            "id": "68d5b10265b970d1077c5002",
+            "newBuy": 950
+          },
+          {
+            "id": "68d5b10665b970d1077c5006",
+            "newBuy": 550
+          },
+          {
+            "id": "68d5b10965b970d1077c5009",
+            "newBuy": 700
+          },
+          {
+            "id": "68d5b10765b970d1077c5007",
+            "newBuy": 1100
+          },
+          {
+            "id": "68d5b10865b970d1077c5008",
+            "newBuy": 1400
+          },
+          {
+            "id": "68d5b10a65b970d1077c5010",
+            "newBuy": 850
+          },
+          {
+            "id": "68d5b10b65b970d1077c5011",
+            "newBuy": 1500
+          },
+          {
+            "id": "68d5b10c65b970d1077c5012",
+            "newBuy": 1350
+          },
+          {
+            "id": "68d5b10d65b970d1077c5013",
+            "newBuy": 900
+          },
+          {
+            "id": "68d5b10e65b970d1077c5014",
+            "newBuy": 750
+          },
+          {
+            "id": "68d5b10f65b970d1077c5015",
+            "newBuy": 2000
+          },
+          {
+            "id": "68d5b11065b970d1077c5016",
+            "newBuy": 1650
+          },
+          {
+            "id": "68d5b11165b970d1077c5017",
+            "newBuy": 500
+          },
+          {
+            "id": "68d5b10465b970d1077c5004",
+            "newBuy": 800
+          },
+          {
+            "id": "68d5b10565b970d1077c5005",
+            "newBuy": 450
+          }
+        ],
+        "createdAt": "2026-09-04T13:28:50.936Z",
+        "updatedAt": "2026-09-04T13:28:50.936Z",
+        "__v": 0
+      },
+      {
+        "_id": "6a9acae5c5d0e515828e750b",
+        "headline": "Grid Overload Panic",
+        "desc": "Emergency Computational Cool-Down Protocols Fail as Massive Data Centers Draw Record Power to Simulate Pathogen Mutations.* * **Elaboration:** To map the spore's genetic replication cycle in real time, automated server complexes ramp up computational intensity to unprecedented levels. This triggers a cascading thermal failure across regional power grids, melting local server components and plunging commercial data sectors into sudden, chaotic blackouts.",
+        "sequence": 2,
+        "effects": [
+          {
+            "id": "68d5b10165b970d1077c5001",
+            "newBuy": 1100
+          },
+          {
+            "id": "68d5b10d65b970d1077c5013",
+            "newBuy": 1080
+          },
+          {
+            "id": "68d5b11065b970d1077c5016",
+            "newBuy": 1970
+          }
+        ],
+        "createdAt": "2026-09-04T13:43:01.547Z",
+        "updatedAt": "2026-09-04T13:43:01.547Z",
+        "__v": 0
+      },
+      {
+        "_id": "6a9aceddc5d0e515828ea81f",
+        "headline": "The concrete exodus",
+        "desc": "Emergency Computational Cool-Down Protocols Fail as Massive Data Centers Draw Record Power to Simulate Pathogen Mutations.* * **Elaboration:** To map the spore's genetic replication cycle in real time, automated server complexes ramp up computational intensity to unprecedented levels. This triggers a cascading thermal failure across regional power grids, melting local server components and plunging commercial data sectors into sudden, chaotic blackouts.",
+        "sequence": 3,
+        "effects": [
+          {
+            "id": "68d5b10765b970d1077c5007",
+            "newBuy": 1300
+          },
+          {
+            "id": "68d5b10b65b970d1077c5011",
+            "newBuy": 1420
+          },
+          {
+            "id": "68d5b10c65b970d1077c5012",
+            "newBuy": 1100
+          }
+        ],
+        "createdAt": "2026-09-04T13:59:57.227Z",
+        "updatedAt": "2026-09-04T13:59:57.227Z",
+        "__v": 0
+      },
+      {
+        "_id": "6a9ad18ac5d0e515828eca58",
+        "headline": "Liquid Gold rush",
+        "desc": "Nationwide Banking Panic Forces Central Banks to Lock Physical Vaults; Industrial Bullion Demand Skyrockets.*Elaboration:** Fearing total economic collapse, institutional investors and frightened citizens flood the market to convert digital capital into tangible assets. However, transport unions striking outside major refineries paralyze standard bullion shipments, throwing precious metal supply chains into turmoil.",
+        "sequence": 4,
+        "effects": [
+          {
+            "id": "68d5b11165b970d1077c5017",
+            "newBuy": 450
+          },
+          {
+            "id": "68d5b10465b970d1077c5004",
+            "newBuy": 580
+          }
+        ],
+        "createdAt": "2026-09-04T14:11:22.357Z",
+        "updatedAt": "2026-09-04T14:11:22.357Z",
+        "__v": 0
+      },
+      {
+        "_id": "6a9ad23dc5d0e515828ed1df",
+        "headline": "Stock changes",
+        "desc": "immediate market change",
+        "sequence": 4.1,
+        "effects": [
+          {
+            "id": "68d5b10165b970d1077c5001",
+            "newBuy": 1150
+          },
+          {
+            "id": "68d5b10f65b970d1077c5015",
+            "newBuy": 1850
+          },
+          {
+            "id": "68d5b11065b970d1077c5016",
+            "newBuy": 2250
+          }
+        ],
+        "createdAt": "2026-09-04T14:14:21.333Z",
+        "updatedAt": "2026-09-04T14:15:40.215Z",
+        "__v": 0
+      },
+      {
+        "_id": "6a9ad481c5d0e515828ee9c1",
+        "headline": "Logistics Gridlock",
+        "desc": "Military-Enforced Highway Quarantine Checkpoints Paralyze Commercial Freight and Interstate Fleet Movements.* * **Elaboration:** Federal defense forces erect barricades across major interstate trucking corridors to halt the spread of the biological vector. Standard consumer vehicle fleets are barred from moving, leaving commercial supply chains stranded on desolate highways.",
+        "sequence": 5,
+        "effects": [
+          {
+            "id": "68d5b10665b970d1077c5006",
+            "newBuy": 480
+          },
+          {
+            "id": "68d5b10965b970d1077c5009",
+            "newBuy": 520
+          },
+          {
+            "id": "68d5b10a65b970d1077c5010",
+            "newBuy": 1040
+          }
+        ],
+        "createdAt": "2026-09-04T14:24:01.232Z",
+        "updatedAt": "2026-09-04T14:24:01.232Z",
+        "__v": 0
+      }
+    ],
+    "flags": [
+      {
+        "_id": "6a95f5cb765a197121cd34c8",
+        "key": "global",
+        "value": true,
+        "startedAt": 1788532384190,
+        "accumulatedSeconds": 0,
+        "__v": 0,
+        "roundDurationSeconds": 60
+      }
+    ]
+  }
+}
