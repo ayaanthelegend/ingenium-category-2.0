@@ -689,6 +689,19 @@ const BigBlackSwitch = () => {
     }
   }
 
+  const resetNewsQueue = async () => {
+    try {
+      const resp = await axios.post(`${serverUrl}/news/reset-queue`, {}, {
+        headers: { Authorization: getAdminAuthHeader() }
+      });
+      alert(resp.data?.message || 'News queue reset back to Header #5.');
+      window.location.reload();
+    } catch (e) {
+      console.error("Failed to reset news queue", e);
+      alert("Failed to reset news queue.");
+    }
+  }
+
   useEffect(() => {
     getFlag();
   }, [])
@@ -713,6 +726,9 @@ const BigBlackSwitch = () => {
           </Button>
           <Button className={!flag.value ? 'pointer-events-none opacity-50' : ''} onClick={pauseFlag}>
             Ateeb says pause
+          </Button>
+          <Button variant="outline" className="text-amber-400 border-amber-400/40 hover:bg-amber-400/10 font-bold" onClick={resetNewsQueue}>
+            Reset Queue to Header #5 (Next: #6)
           </Button>
         </div>
       </CardContent>

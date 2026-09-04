@@ -16,10 +16,17 @@ import {News} from "./schemas/news.schema";
 import {UpdateNewsDto} from "./dto/update-news.dto";
 import {seedQueuedNews} from "../scripts/seed-queued-news";
 
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Flag } from '../flags/schemas/flag.schema';
+import { FlagsService } from '../flags/flags.service';
+
 @Controller('news')
 export class NewsController {
   constructor(
     private readonly newsService: NewsService,
+    private readonly flagsService: FlagsService,
+    @InjectModel(Flag.name) private flagModel: Model<Flag>,
   ) {}
 
   @Get('/admin')
@@ -50,6 +57,24 @@ export class NewsController {
   @UseGuards(AdminKeyGuard)
   async seedQueued() {
     return seedQueuedNews();
+  }
+
+  @Post('reset-queue')
+  @UseGuards(AdminKeyGuard)
+  async resetQueue() {
+    const flag = await this.flagsService.getFullFlag('global');
+    const currentElapsed = flag ? (flag.elapsedSeconds || 0) : 0;
+
+    await this.flagModel.findOneAndUpdate(
+      { key: 'global' },
+      {
+        lastReleaseElapsedSeconds: currentElapsed,
+        isAutoPausing: false,
+      },
+      { upsert: true }
+    );
+
+    return this.newsService.resetQueueToHeader5(currentElapsed);
   }
 
 

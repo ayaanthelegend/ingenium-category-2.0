@@ -38,4 +38,14 @@ export class NewsService {
   async deleteNews(id: string) {
     return this.newsModel.deleteOne({_id: new Types.ObjectId(id)});
   }
+
+  async resetQueueToHeader5(currentElapsed: number): Promise<{ success: boolean; message: string }> {
+    await this.newsModel.updateMany({ sequence: { $gte: 6 } }, { released: false }).exec();
+    await this.newsModel.updateMany({ sequence: { $lte: 5 } }, { released: true }).exec();
+
+    return {
+      success: true,
+      message: 'News queue reset back to Header #5. Click "Ateeb says go" to start countdown for Header #6!',
+    };
+  }
 }

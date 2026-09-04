@@ -30,7 +30,7 @@ export class StocksService {
 
       for (const item of sorted) {
         for (const effect of item.effects || []) {
-          if (String(stock._id) === effect.id) {
+          if (String(stock._id) === effect.id && effect.newBuy !== undefined && effect.newBuy !== null && effect.newBuy !== -1) {
             currentPrice = effect.newBuy;
             history.push(currentPrice);
           }
