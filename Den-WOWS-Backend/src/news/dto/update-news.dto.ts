@@ -1,4 +1,5 @@
-import {IsNumber, IsString} from 'class-validator';
+import {IsArray, IsNumber, IsOptional, IsString} from 'class-validator';
+import {StockEffect} from "../interfaces/news.interface";
 
 export class UpdateNewsDto {
   @IsString()
@@ -9,4 +10,8 @@ export class UpdateNewsDto {
 
   @IsNumber()
   sequence: number;
+
+  @IsOptional()
+  @IsArray()
+  effects?: StockEffect[];
 }

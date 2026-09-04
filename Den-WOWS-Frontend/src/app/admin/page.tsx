@@ -595,10 +595,16 @@ const NewsThing = () => {
                         <Button onClick={() => {
                           setEditError("");
                           setEditingNewsId(n._id);
+                          const existingEffectsMap = new Map((n.effects || []).map(e => [e.id, e.newBuy]));
+                          const initialEffects = stocks.map(stock => ({
+                            id: stock._id,
+                            newBuy: existingEffectsMap.has(stock._id) ? existingEffectsMap.get(stock._id)! : -1
+                          }));
                           setUpdateNewsDto({
                             headline: n.headline,
                             desc: n.desc,
                             sequence: n.sequence,
+                            effects: initialEffects,
                           });
                           setIsEditOpen(true);
                         }}>
@@ -625,6 +631,28 @@ const NewsThing = () => {
                               <Input onChange={(e) => setUpdateNewsDto({...updateNewsDto, desc: e.target.value})} value={updateNewsDto.desc} placeholder={'Name'}/>
                               <Label>News Sequence</Label>
                               <Input onChange={(e) => setUpdateNewsDto({...updateNewsDto, sequence: Number(e.target.value)})} value={updateNewsDto.sequence} placeholder={'Sequence'} type={'number'}/>
+                            </div>
+                          </div>
+                          <div className="grid focus:outline-none focus:ring-0 [&_*]:focus:outline-none [&_*]:focus:ring-0">
+                            <Label className="mt-4 font-bold">Effects (fill in only the affected stocks, leave the rest as -1)</Label>
+                            <div className="gap-3 mt-4 flex flex-col max-h-48 overflow-y-auto">
+                              {
+                                (updateNewsDto.effects || []).map((effect) => (
+                                  <Card key={effect.id} className={'p-4 text-white'}>
+                                    <CardContent>
+                                      <Label>Effecting Stock</Label>
+                                      <Input readOnly className={'mt-2'} value={stocks.find(s => s._id == effect.id)?.name || 'Stock'} type={'text'}/>
+                                      <Label className={'mt-4'}>New Price</Label>
+                                      <Input className={'mt-2'} onChange={(e) => {
+                                        const updatedEffects = (updateNewsDto.effects || []).map((ef) =>
+                                          ef.id === effect.id ? { ...ef, newBuy: Number(e.target.value) } : ef
+                                        );
+                                        setUpdateNewsDto({ ...updateNewsDto, effects: updatedEffects });
+                                      }} value={effect.newBuy} type={'number'}/>
+                                    </CardContent>
+                                  </Card>
+                                ))
+                              }
                             </div>
                           </div>
                           <DialogFooter className="mt-4">

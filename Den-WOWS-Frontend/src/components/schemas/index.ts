@@ -51,6 +51,7 @@ export interface UpdateNewsDto {
   headline: string;
   desc: string;
   sequence: number;
+  effects?: StockEffect[];
 }
 export interface Flag {
   key: string;
