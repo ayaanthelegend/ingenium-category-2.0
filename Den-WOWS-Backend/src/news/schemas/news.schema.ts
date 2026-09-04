@@ -17,6 +17,9 @@ export class News {
 
   @Prop({ required: true })
   effects: StockEffect[];
+
+  @Prop({ default: true })
+  released: boolean;
 }
 
 export const NewsSchema = SchemaFactory.createForClass(News);

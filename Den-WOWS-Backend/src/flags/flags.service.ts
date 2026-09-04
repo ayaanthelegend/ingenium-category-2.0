@@ -109,6 +109,10 @@ export class FlagsService {
     obj.elapsedSeconds = elapsed;
     obj.roundDurationSeconds = duration;
     obj.timeLeft = duration > 0 ? Math.max(0, duration - elapsed) : 0;
+    obj.isAutoPausing = Boolean(flag.isAutoPausing);
+    if (flag.isAutoPausing) {
+      obj.autoPauseMessage = 'Market paused — new update incoming';
+    }
     if (duration > 0 && elapsed >= duration) {
       obj.value = false;
     }

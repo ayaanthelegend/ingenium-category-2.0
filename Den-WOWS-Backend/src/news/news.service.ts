@@ -12,11 +12,23 @@ export class NewsService {
   ) {}
 
   async createNews(news: CreateNewsDto): Promise<NewsDocument> {
-    return this.newsModel.create(news)
+    const newsToCreate = {
+      ...news,
+      released: (news as any).released !== undefined ? (news as any).released : true,
+    };
+    return this.newsModel.create(newsToCreate);
   }
 
   async getNews(): Promise<Array<NewsDocument>> {
-    return this.newsModel.find().exec()
+    return this.newsModel.find().exec();
+  }
+
+  async getPublishedNews(): Promise<Array<NewsDocument>> {
+    return this.newsModel.find({ released: { $ne: false } }).exec();
+  }
+
+  async publishNews(id: string): Promise<NewsDocument | null> {
+    return this.newsModel.findByIdAndUpdate(id, { released: true }, { new: true }).exec();
   }
 
   async updateNews(id: string, updateNewsDto: Partial<UpdateNewsDto>) {

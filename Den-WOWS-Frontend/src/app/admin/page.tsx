@@ -547,7 +547,7 @@ const NewsThing = () => {
                     </div>
                   </div>
                   <div className="grid focus:outline-none focus:ring-0 [&_*]:focus:outline-none [&_*]:focus:ring-0">
-                    <Label className="mt-4 font-bold">Effects (Fill ALL)</Label>
+                    <Label className="mt-4 font-bold">Effects (fill in only the affected stocks, leave the rest as -1)</Label>
                     <div className="gap-3 mt-4 flex flex-col max-h-48 overflow-y-auto">
                       {
                         createNewsDto.effects.map((effect) => (
@@ -570,7 +570,7 @@ const NewsThing = () => {
                   </div>
                   <DialogFooter className="mt-4">
                     <Button type="button" onClick={() => setIsCreateOpen(false)} className={'text-sm'} variant="outline">Cancel</Button>
-                    <Button type="submit" className={`text-sm ${createNewsDto.effects.some(s => s.newBuy === -1) && "pointer-events-none opacity-50"}`} variant="secondary">Confirm</Button>
+                    <Button type="submit" className={`text-sm ${createNewsDto.effects.every(s => s.newBuy === -1) && "pointer-events-none opacity-50"}`} variant="secondary">Confirm</Button>
                   </DialogFooter>
                 </form>
               </DialogContent>

@@ -26,6 +26,7 @@ import NewsProgram from "@/components/programs/news";
 import LeaderboardProgram from "@/components/programs/leaderboard";
 import {News, Stock, User, Flag} from "@/components/schemas";
 import axios from "axios";
+import MobileLayout from "@/components/mobile_layout";
 
 
 const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -228,6 +229,33 @@ export default function Home() {
     return `${secs}s`;
   };
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  if (isMobile) {
+    return (
+      <MobileLayout
+        news={news}
+        stocks={stocks}
+        me={me}
+        leaderboardUsers={leaderboardUsers}
+        update={update}
+        timeLeft={timeLeft}
+        flag={flag}
+        newsFlash={newsFlash}
+        refreshAllData={refreshAllData}
+        onLogout={() => router.push("/login")}
+        formatTimeLeft={formatTimeLeft}
+      />
+    );
+  }
+
   return (
     <div className="h-screen flex flex-col justify-between items-center p-16 bg-black/50">
       <h1 className="fixed bottom-4 z-50 right-4 text-xs text-white/50 font-light">
@@ -247,7 +275,11 @@ export default function Home() {
         <h1 className="text-3xl font-black text-[#FFBF00]">Goldmans Gambit</h1>
         <h2 className="text-xl font-light text-white/60">desktop edition</h2>
         {flag && !flag.value ? (
-          <h2 className="text-lg font-bold text-red-500 mt-1">[ EVENT PAUSED ]</h2>
+          flag.isAutoPausing ? (
+            <h2 className="text-lg font-bold text-amber-400 mt-1 animate-pulse">[ MARKET PAUSED — NEW UPDATE INCOMING ]</h2>
+          ) : (
+            <h2 className="text-lg font-bold text-red-500 mt-1">[ EVENT PAUSED ]</h2>
+          )
         ) : (
           <div className="flex flex-col items-end mt-1 text-sm text-white/80 font-light">
             <h2>Round Time Remaining: <span className="font-bold text-amber-400">{formatTimeLeft(timeLeft)}</span></h2>

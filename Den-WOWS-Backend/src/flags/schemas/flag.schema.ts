@@ -17,6 +17,12 @@ export class Flag extends Document {
 
   @Prop({ default: 0 })
   roundDurationSeconds: number;
+
+  @Prop({ default: 0 })
+  lastReleaseElapsedSeconds: number;
+
+  @Prop({ default: false })
+  isAutoPausing: boolean;
 }
 
 export const FlagSchema = SchemaFactory.createForClass(Flag);

@@ -60,4 +60,6 @@ export interface Flag {
   roundDurationSeconds?: number;
   elapsedSeconds?: number;
   timeLeft?: number;
+  isAutoPausing?: boolean;
+  autoPauseMessage?: string;
 }

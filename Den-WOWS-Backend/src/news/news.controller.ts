@@ -14,6 +14,7 @@ import {CreateNewsDto} from "./dto/create-news.dto";
 import {JwtAuthGuard} from "../auth/jwt-auth.guard";
 import {News} from "./schemas/news.schema";
 import {UpdateNewsDto} from "./dto/update-news.dto";
+import {seedQueuedNews} from "../scripts/seed-queued-news";
 
 @Controller('news')
 export class NewsController {
@@ -30,7 +31,7 @@ export class NewsController {
   @Get('')
   @UseGuards(JwtAuthGuard)
   async getNews() {
-    const allNews = await this.newsService.getNews();
+    const allNews = await this.newsService.getPublishedNews();
     const sorted = [...allNews].sort((a, b) => a.sequence - b.sequence);
     return sorted.map((t) => {
       const obj = t.toObject ? t.toObject() : { ...t };
@@ -43,6 +44,12 @@ export class NewsController {
   @UseGuards(AdminKeyGuard)
   createNews(@Body() createNewsDto: CreateNewsDto) {
     return this.newsService.createNews(createNewsDto)
+  }
+
+  @Post('seed-queued')
+  @UseGuards(AdminKeyGuard)
+  async seedQueued() {
+    return seedQueuedNews();
   }
 
 

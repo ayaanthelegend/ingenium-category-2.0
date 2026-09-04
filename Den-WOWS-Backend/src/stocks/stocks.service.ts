@@ -20,7 +20,7 @@ export class StocksService {
 
   async getStocksBasedOnNews() {
     const stocks = await this.getStocks();
-    const allNews = await this.newsService.getNews();
+    const allNews = await this.newsService.getPublishedNews();
     const sorted = [...allNews].sort((a, b) => a.sequence - b.sequence);
 
     for (const stock of stocks) {
