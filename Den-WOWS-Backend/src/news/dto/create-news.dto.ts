@@ -1,4 +1,4 @@
-import {IsArray, IsNumber, IsString, ValidateNested} from 'class-validator';
+import {IsArray, IsBoolean, IsNumber, IsOptional, IsString, ValidateNested} from 'class-validator';
 import {StockEffect} from "../interfaces/news.interface";
 import {Type} from "class-transformer";
 
@@ -14,4 +14,8 @@ export class CreateNewsDto {
 
   @IsArray()
   effects: StockEffect[];
+
+  @IsOptional()
+  @IsBoolean()
+  released?: boolean;
 }
