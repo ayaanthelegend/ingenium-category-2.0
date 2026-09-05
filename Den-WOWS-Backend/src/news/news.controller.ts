@@ -20,12 +20,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Flag } from '../flags/schemas/flag.schema';
 import { FlagsService } from '../flags/flags.service';
+import { NewsSchedulerService } from './news-scheduler.service';
 
 @Controller('news')
 export class NewsController {
   constructor(
     private readonly newsService: NewsService,
     private readonly flagsService: FlagsService,
+    private readonly newsSchedulerService: NewsSchedulerService,
     @InjectModel(Flag.name) private flagModel: Model<Flag>,
   ) {}
 
@@ -56,7 +58,14 @@ export class NewsController {
   @Post('seed-queued')
   @UseGuards(AdminKeyGuard)
   async seedQueued() {
-    return seedQueuedNews();
+    await this.newsSchedulerService.ensureQueuedNewsSeeded();
+    return { success: true, message: 'Queued news verified and seeded.' };
+  }
+
+  @Post('release-next')
+  @UseGuards(AdminKeyGuard)
+  async releaseNext() {
+    return this.newsSchedulerService.releaseNextNewsImmediately();
   }
 
   @Post('reset-queue')
@@ -74,9 +83,14 @@ export class NewsController {
       { upsert: true }
     );
 
-    return this.newsService.resetQueueToHeader5(currentElapsed);
+    return this.newsService.resetQueueToHeader15(currentElapsed);
   }
 
+  @Delete('dummy-headers')
+  @UseGuards(AdminKeyGuard)
+  deleteDummyHeaders() {
+    return this.newsService.deleteDummyHeaders();
+  }
 
   @Patch(':id')
   @UseGuards(AdminKeyGuard)

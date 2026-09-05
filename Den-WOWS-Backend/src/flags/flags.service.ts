@@ -54,9 +54,13 @@ export class FlagsService {
 
     if (!existingFlag || existingFlag.accumulatedSeconds === undefined || existingFlag.accumulatedSeconds === null) {
       updateData.accumulatedSeconds = 0;
+      updateData.lastReleaseElapsedSeconds = 0;
     } else if (duration > 0 && currentElapsed >= duration) {
       updateData.accumulatedSeconds = 0;
+      updateData.lastReleaseElapsedSeconds = 0;
     }
+
+    updateData.isAutoPausing = false;
 
     return this.flagModel.findOneAndUpdate(
       { key: 'global' },
@@ -106,10 +110,20 @@ export class FlagsService {
     const obj: any = flag.toObject ? flag.toObject() : { ...flag };
     const elapsed = this.getElapsedSeconds(flag);
     const duration = flag.roundDurationSeconds || 0;
+    const interval = (flag.newsReleaseIntervalSeconds && flag.newsReleaseIntervalSeconds > 0)
+      ? flag.newsReleaseIntervalSeconds
+      : (process.env.NEWS_RELEASE_INTERVAL_SEC ? Number(process.env.NEWS_RELEASE_INTERVAL_SEC) : 300);
+    const lastRelease = flag.lastReleaseElapsedSeconds || 0;
+    const timeSinceLast = Math.max(0, elapsed - lastRelease);
+
     obj.elapsedSeconds = elapsed;
     obj.roundDurationSeconds = duration;
     obj.timeLeft = duration > 0 ? Math.max(0, duration - elapsed) : 0;
     obj.isAutoPausing = Boolean(flag.isAutoPausing);
+    obj.newsReleaseIntervalSeconds = interval;
+    obj.lastReleaseElapsedSeconds = lastRelease;
+    obj.nextReleaseInSeconds = Math.max(0, interval - timeSinceLast);
+
     if (flag.isAutoPausing) {
       obj.autoPauseMessage = 'Market paused — new update incoming';
     }
@@ -117,6 +131,15 @@ export class FlagsService {
       obj.value = false;
     }
     return obj;
+  }
+
+  async setIntervalSeconds(seconds: number): Promise<any> {
+    const validSec = Math.max(5, Number(seconds) || 300);
+    return this.flagModel.findOneAndUpdate(
+      { key: 'global' },
+      { newsReleaseIntervalSeconds: validSec },
+      { upsert: true, new: true },
+    );
   }
 
   async setFlag(key: string, value: boolean): Promise<any> {

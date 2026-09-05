@@ -39,6 +39,7 @@ export interface CreateNewsDto {
   desc: string;
   sequence: number;
   effects: StockEffect[];
+  released?: boolean;
 }
 export interface News {
   _id: string;
@@ -46,12 +47,14 @@ export interface News {
   desc: string;
   sequence: number;
   effects: StockEffect[];
+  released?: boolean;
 }
 export interface UpdateNewsDto {
   headline: string;
   desc: string;
   sequence: number;
   effects?: StockEffect[];
+  released?: boolean;
 }
 export interface Flag {
   key: string;
@@ -63,4 +66,7 @@ export interface Flag {
   timeLeft?: number;
   isAutoPausing?: boolean;
   autoPauseMessage?: string;
+  lastReleaseElapsedSeconds?: number;
+  newsReleaseIntervalSeconds?: number;
+  nextReleaseInSeconds?: number;
 }

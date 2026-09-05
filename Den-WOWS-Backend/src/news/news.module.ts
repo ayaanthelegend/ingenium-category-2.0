@@ -6,12 +6,14 @@ import { NewsService } from "./news.service";
 import { NewsSchedulerService } from "./news-scheduler.service";
 import { FlagsModule } from "../flags/flags.module";
 import { Flag, FlagSchema } from "../flags/schemas/flag.schema";
+import { Stock, StocksSchema } from "../stocks/schemas/stocks.schema";
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: News.name, schema: NewsSchema },
       { name: Flag.name, schema: FlagSchema },
+      { name: Stock.name, schema: StocksSchema },
     ]),
     FlagsModule,
   ],

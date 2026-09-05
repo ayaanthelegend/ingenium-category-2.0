@@ -6,6 +6,7 @@ import { User, UserDocument } from './users/schemas/user.schema';
 import { Stock, StocksDocument } from './stocks/schemas/stocks.schema';
 import { News, NewsDocument } from './news/schemas/news.schema';
 import { Flag } from './flags/schemas/flag.schema';
+import { QUEUED_NEWS_ITEMS, DUMMY_TEST_NEWS_ITEMS, COMPLETED_NEWS_ITEMS_11_15 } from './scripts/seed-queued-news';
 
 @Injectable()
 export class SeedService implements OnModuleInit {
@@ -99,32 +100,163 @@ export class SeedService implements OnModuleInit {
   }
 
   private async seedNews() {
-    const count = await this.newsModel.countDocuments().exec();
-    if (count === 0) {
-      await this.newsModel.create([
-        {
-          headline: 'Market Opening Surge',
-          desc: 'Stock market opens with strong bullish sentiment across tech and energy sectors.',
-          sequence: 1,
-          effectAt: 60,
-          effects: [{ id: '68d5b10b65b970d1077c5011', newBuy: 1750 }],
-        },
-        {
-          headline: 'Cloud Infrastructure Breakthrough',
-          desc: 'Atif Cloud Systems secures major enterprise contracts.',
-          sequence: 2,
-          effectAt: 120,
-          effects: [{ id: '68d5b10c65b970d1077c5012', newBuy: 1600 }],
-        },
-        {
-          headline: 'Clean Energy Grant Approved',
-          desc: 'Gillani FutureEnergies awarded federal clean energy grant.',
-          sequence: 3,
-          effectAt: 180,
-          effects: [{ id: '68d5b10765b970d1077c5007', newBuy: 1350 }],
-        },
-      ]);
-      console.log('[SeedService] Seeded initial news events.');
+    const existingStocks = await this.stockModel.find().exec();
+
+    const buildEffects = (effectsMap: Record<string, any>) => {
+      return existingStocks.map((stock) => {
+        const stockName = stock.name || '';
+        let matchedPrice = -1;
+
+        for (const [ticker, price] of Object.entries(effectsMap)) {
+          if (stockName.startsWith(ticker + ' ') || stockName.includes(ticker)) {
+            matchedPrice = price;
+            break;
+          }
+        }
+
+        return {
+          id: String(stock._id),
+          newBuy: matchedPrice,
+        };
+      });
+    };
+
+    const initialPublished = [
+      {
+        sequence: 1,
+        headline: 'PATIENT ZERO CONFIRMED',
+        desc: 'Stock market opens with strong bullish sentiment across tech and energy sectors.',
+        effectsMap: { KIC: 1750 },
+        released: true,
+      },
+      {
+        sequence: 2,
+        headline: 'Grid Overload Panic',
+        desc: 'Atif Cloud Systems secures major enterprise contracts.',
+        effectsMap: { ACS: 1600 },
+        released: true,
+      },
+      {
+        sequence: 3,
+        headline: 'The concrete exodus',
+        desc: 'Gillani FutureEnergies awarded federal clean energy grant.',
+        effectsMap: { GFE: 1350 },
+        released: true,
+      },
+      {
+        sequence: 4,
+        headline: 'Liquid Gold rush',
+        desc: 'International logistics networks adjust routing protocols to alleviate regional distribution bottlenecks.',
+        effectsMap: { MLH: 550, BURR: 650 },
+        released: true,
+      },
+      {
+        sequence: 5,
+        headline: 'Logistics Gridlock',
+        desc: 'Major institutional liquidity buffers expand as central banking operations reinforce market capitalization.',
+        effectsMap: { SAB: 1280, ABG: 1020 },
+        released: true,
+      },
+      {
+        sequence: 6,
+        headline: 'THE SILICON SCARCITY',
+        desc: 'Pathogen Genome Sequencing Requires Immediate Restocking of Scarce Rare-Earth Isotope Lasers.',
+        effectsMap: { SSM: 480, AYN: 520, MUB: 1040 },
+        released: true,
+      },
+      {
+        sequence: 7,
+        headline: 'Agricultural Contamination Scare',
+        desc: 'Trace Elements of Synthetic Spore Detected in Major Southern Grain Silos and Food Processing Facilities.',
+        effectsMap: { NLB: 1171, K333: 760 },
+        released: true,
+      },
+      {
+        sequence: 8,
+        headline: 'Petro-Fuel Revival',
+        desc: 'Emergency Bio-Incinerators Demand Continuous Heavy Fossil Fuel Supply to Destroy Contaminated Medical Waste.',
+        effectsMap: { SAB: 1350, MLH: 250, OMER: 540 },
+        released: true,
+      },
+      {
+        sequence: 9,
+        headline: 'Astro-Telemetry Solutions',
+        desc: 'Deep-Space Satellites Repurposed to Track Atmospheric Spore Drift via Thermal Infrared Imaging.',
+        effectsMap: { SSM: 560, GFE: 1150, NAS: 1750 },
+        released: true,
+      },
+      {
+        sequence: 10,
+        headline: 'Financial Sector Re-routing',
+        desc: 'Central Bank Freezes Interbank Lending Operations Amid Nationwide Bio-Security Martial Law Declarations.',
+        effectsMap: { KIC: 1480, ACS: 920, IAR: 1040 },
+        released: true,
+      },
+      ...COMPLETED_NEWS_ITEMS_11_15.map((item) => ({ ...item, released: true })),
+    ];
+
+    for (const item of initialPublished) {
+      const existing = await this.newsModel.findOne({ sequence: item.sequence }).exec();
+      if (!existing) {
+        await this.newsModel.create({
+          sequence: item.sequence,
+          headline: item.headline,
+          desc: item.desc,
+          effects: buildEffects(item.effectsMap),
+          released: true,
+        });
+        console.log(`[SeedService] Seeded published headline #${item.sequence} ("${item.headline}").`);
+      } else {
+        if (existing.released !== true) {
+          existing.released = true;
+          await existing.save();
+          console.log(`[SeedService] Updated headline #${item.sequence} to released: true.`);
+        }
+      }
     }
+
+    // Seed test dummy headers if not already seeded
+    const flag = await this.flagModel.findOne({ key: 'global' }).exec();
+    if (!flag?.dummyHeadersSeeded) {
+      for (const item of DUMMY_TEST_NEWS_ITEMS) {
+        const existing = await this.newsModel.findOne({ sequence: item.sequence }).exec();
+        if (!existing) {
+          await this.newsModel.create({
+            sequence: item.sequence,
+            headline: item.headline,
+            desc: item.desc,
+            effects: buildEffects(item.effectsMap),
+            released: false,
+          });
+          console.log(`[SeedService] Seeded test dummy headline #${item.sequence} ("${item.headline}").`);
+        }
+      }
+      await this.flagModel.findOneAndUpdate(
+        { key: 'global' },
+        { dummyHeadersSeeded: true },
+      ).exec();
+    }
+
+    for (const item of QUEUED_NEWS_ITEMS) {
+      const existing = await this.newsModel.findOne({ sequence: item.sequence }).exec();
+      if (!existing) {
+        await this.newsModel.create({
+          sequence: item.sequence,
+          headline: item.headline,
+          desc: item.desc,
+          effects: buildEffects(item.effectsMap),
+          released: false,
+        });
+        console.log(`[SeedService] Seeded queued headline #${item.sequence} ("${item.headline}").`);
+      } else {
+        if (existing.headline !== item.headline || existing.desc !== item.desc) {
+          existing.headline = item.headline;
+          existing.desc = item.desc;
+          await existing.save();
+        }
+      }
+    }
+
+    console.log('[SeedService] News events (1-15 published, 2 dummy test headers, 16-20 queued) verified/seeded.');
   }
 }

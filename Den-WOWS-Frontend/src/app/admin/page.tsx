@@ -501,11 +501,30 @@ const NewsThing = () => {
       console.error("Failed to fetch news", e);
       handleAdminAuthError(e, router);
     }
-  }
+  };
+
+  const releaseNext = async () => {
+    try {
+      const resp = await axios.post(`${serverUrl}/news/release-next`, {}, {
+        headers: { Authorization: getAdminAuthHeader() }
+      });
+      alert(resp.data?.message || "News released!");
+      await getNews();
+      await getStocks();
+    } catch (e) {
+      console.error("Failed to release next news", e);
+      alert("Failed to release news.");
+    }
+  };
 
   useEffect(() => {
     getNews();
     getStocks();
+    const interval = setInterval(() => {
+      getNews();
+      getStocks();
+    }, 2500);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -543,7 +562,7 @@ const NewsThing = () => {
                       <Label>News Description</Label>
                       <Input onChange={(e) => setCreateNewsDto({...createNewsDto, desc: e.target.value})} value={createNewsDto.desc} placeholder={'Name'}/>
                       <Label>News Sequence</Label>
-                      <Input onChange={(e) => setCreateNewsDto({...createNewsDto, sequence: Number(e.target.value)})} value={createNewsDto.sequence} placeholder={'Sequence'} type={'number'}/>
+                      <Input step="any" onChange={(e) => setCreateNewsDto({...createNewsDto, sequence: Number(e.target.value)})} value={createNewsDto.sequence} placeholder={'Sequence'} type={'number'}/>
                     </div>
                   </div>
                   <div className="grid focus:outline-none focus:ring-0 [&_*]:focus:outline-none [&_*]:focus:ring-0">
@@ -578,14 +597,37 @@ const NewsThing = () => {
           </div>
         </div>
         <div className={'flex justify-start flex-col gap-4 mt-4 items-start w-full'}>
-          {news.map((n) => (
-            <Card key={n._id} className={'w-full p-6'}>
-              <CardContent>
-                <div className={'flex w-full justify-between flex-row'}>
-                  <div className={'flex justify-start items-start flex-col'}>
-                    <h1 className={'text-2xl font-black text-white'}>Heading #{n.sequence} ({n.headline})</h1>
-                    <h1 className={'text-lg text-white'}>{n.desc}</h1>
-                  </div>
+          {(() => {
+            const sortedUnreleased = news.filter(item => item.released === false).sort((a, b) => a.sequence - b.sequence);
+            const nextQueuedSeq = sortedUnreleased[0]?.sequence;
+
+            return news.map((n) => {
+              const isReleased = n.released !== false;
+              const isNextQueued = !isReleased && n.sequence === nextQueuedSeq;
+
+              return (
+                <Card key={n._id} className={`w-full p-6 transition-all duration-300 ${isNextQueued ? 'border-amber-400/80 bg-amber-950/20' : ''}`}>
+                  <CardContent>
+                    <div className={'flex w-full justify-between flex-row'}>
+                      <div className={'flex justify-start items-start flex-col'}>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <h1 className={'text-2xl font-black text-white'}>Heading #{n.sequence} ({n.headline})</h1>
+                          {isReleased ? (
+                            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-green-500/20 border border-green-500 text-green-400">
+                              ✓ RELEASED
+                            </span>
+                          ) : isNextQueued ? (
+                            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-500/20 border border-amber-400 text-amber-300 animate-pulse">
+                              ⏳ QUEUED (NEXT IN LINE)
+                            </span>
+                          ) : (
+                            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-700/40 border border-slate-600 text-slate-300">
+                              QUEUED
+                            </span>
+                          )}
+                        </div>
+                        <h1 className={'text-lg text-white mt-1'}>{n.desc}</h1>
+                      </div>
                   <div className={'flex justify-start items-center gap-4'}>
                     <Dialog open={isEditOpen && editingNewsId === n._id} onOpenChange={(open) => {
                       setIsEditOpen(open);
@@ -630,7 +672,7 @@ const NewsThing = () => {
                               <Label>News Description</Label>
                               <Input onChange={(e) => setUpdateNewsDto({...updateNewsDto, desc: e.target.value})} value={updateNewsDto.desc} placeholder={'Name'}/>
                               <Label>News Sequence</Label>
-                              <Input onChange={(e) => setUpdateNewsDto({...updateNewsDto, sequence: Number(e.target.value)})} value={updateNewsDto.sequence} placeholder={'Sequence'} type={'number'}/>
+                              <Input step="any" onChange={(e) => setUpdateNewsDto({...updateNewsDto, sequence: Number(e.target.value)})} value={updateNewsDto.sequence} placeholder={'Sequence'} type={'number'}/>
                             </div>
                           </div>
                           <div className="grid focus:outline-none focus:ring-0 [&_*]:focus:outline-none [&_*]:focus:ring-0">
@@ -662,6 +704,15 @@ const NewsThing = () => {
                         </form>
                       </DialogContent>
                     </Dialog>
+                    {!isReleased && (
+                      <Button
+                        variant="outline"
+                        className="text-amber-400 border-amber-400/40 hover:bg-amber-400/20 font-bold"
+                        onClick={releaseNext}
+                      >
+                        ⚡ Release Now
+                      </Button>
+                    )}
                     <Button onClick={() => deleteNews(n._id)}>
                       Delete
                     </Button>
@@ -669,7 +720,9 @@ const NewsThing = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          );
+        });
+      })()}
         </div>
       </CardContent>
     </Card>
@@ -677,8 +730,11 @@ const NewsThing = () => {
 }
 
 const BigBlackSwitch = () => {
-  const [flag, setFlag] = useState<Flag | null>(null)
-  const [durationMinutes, setDurationMinutes] = useState<number | string>("")
+  const [flag, setFlag] = useState<Flag | null>(null);
+  const [durationMinutes, setDurationMinutes] = useState<number | string>("");
+  const [intervalSeconds, setIntervalSeconds] = useState<number | string>("");
+  const [isEditingInterval, setIsEditingInterval] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const getFlag = async () => {
     try {
@@ -689,56 +745,166 @@ const BigBlackSwitch = () => {
       if (resp.data && resp.data.roundDurationSeconds) {
         setDurationMinutes(resp.data.roundDurationSeconds / 60);
       }
+      if (resp.data && resp.data.newsReleaseIntervalSeconds && !isEditingInterval) {
+        setIntervalSeconds(resp.data.newsReleaseIntervalSeconds);
+      }
     } catch (e) {
       console.error("Failed to fetch flag", e);
     }
-  }
+  };
 
   const pauseFlag = async () => {
+    setActionLoading(true);
     try {
       await axios.post(`${serverUrl}/flags/pause`, {}, {
         headers: { Authorization: getAdminAuthHeader() }
       });
-      window.location.reload();
+      await getFlag();
     } catch (e) {
       console.error("Failed to pause flag", e);
+    } finally {
+      setActionLoading(false);
     }
-  }
+  };
 
   const resumeFlag = async () => {
+    setActionLoading(true);
     try {
       const durationSeconds = durationMinutes ? Math.round(Number(durationMinutes) * 60) : 0;
       await axios.post(`${serverUrl}/flags/start`, { durationSeconds }, {
         headers: { Authorization: getAdminAuthHeader() }
       });
-      window.location.reload();
+      await getFlag();
     } catch (e) {
       console.error("Failed to start flag", e);
+    } finally {
+      setActionLoading(false);
     }
-  }
+  };
+
+  const saveInterval = async (sec?: number) => {
+    const val = sec !== undefined ? sec : Number(intervalSeconds);
+    if (!val || val < 5) {
+      alert("Please specify at least 5 seconds.");
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await axios.post(`${serverUrl}/flags/set-interval`, { seconds: val }, {
+        headers: { Authorization: getAdminAuthHeader() }
+      });
+      setIntervalSeconds(val);
+      setIsEditingInterval(false);
+      await getFlag();
+    } catch (e) {
+      console.error("Failed to set interval", e);
+      alert("Failed to save interval.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const releaseNextNews = async () => {
+    setActionLoading(true);
+    try {
+      const resp = await axios.post(`${serverUrl}/news/release-next`, {}, {
+        headers: { Authorization: getAdminAuthHeader() }
+      });
+      alert(resp.data?.message || 'News released!');
+      await getFlag();
+    } catch (e) {
+      console.error("Failed to release news", e);
+      alert("Failed to release news.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const resetNewsQueue = async () => {
+    setActionLoading(true);
     try {
       const resp = await axios.post(`${serverUrl}/news/reset-queue`, {}, {
         headers: { Authorization: getAdminAuthHeader() }
       });
-      alert(resp.data?.message || 'News queue reset back to Header #5.');
-      window.location.reload();
+      alert(resp.data?.message || 'News queue set to Header #15. Next in line: Header #16.');
+      await getFlag();
     } catch (e) {
       console.error("Failed to reset news queue", e);
       alert("Failed to reset news queue.");
+    } finally {
+      setActionLoading(false);
     }
-  }
+  };
+
+  const deleteDummyHeaders = async () => {
+    if (!confirm("Are you sure you want to delete the test dummy headers? The queue will then start from Header #16 tomorrow.")) return;
+    setActionLoading(true);
+    try {
+      const resp = await axios.delete(`${serverUrl}/news/dummy-headers`, {
+        headers: { Authorization: getAdminAuthHeader() }
+      });
+      alert(resp.data?.message || 'Dummy headers deleted.');
+      await getFlag();
+      window.location.reload();
+    } catch (e) {
+      console.error("Failed to delete dummy headers", e);
+      alert("Failed to delete dummy headers.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   useEffect(() => {
     getFlag();
-  }, [])
+    const interval = setInterval(() => {
+      getFlag();
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   return flag && (
     <Card className={'w-full p-8'}>
-      <CardContent>
-        <h1 className={'text-5xl font-black text-white'}>the big switch (EVENT IS {flag.value ? 'ON' : 'OFF'})</h1>
-        <div className={'mt-4 gap-4 flex flex-wrap items-end'}>
+      <CardContent className="space-y-6">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <h1 className={'text-4xl font-black text-white'}>
+            the big switch (EVENT IS {flag.value ? 'ON' : 'OFF'})
+          </h1>
+          {flag.isAutoPausing && (
+            <div className="text-sm font-bold text-amber-300 bg-amber-500/20 border border-amber-400 px-3 py-1 rounded-full animate-pulse">
+              ⏸ AUTO-PAUSING (10s UPDATE WINDOW)
+            </div>
+          )}
+        </div>
+
+        {/* Live Status & Auto-Release Countdown */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-xl bg-black/40 border border-white/10">
+          <div className="flex flex-col">
+            <span className="text-xs text-white/50 uppercase font-semibold">Event Status</span>
+            <span className={`text-xl font-bold ${flag.value ? 'text-green-400' : 'text-red-400'}`}>
+              {flag.value ? (flag.isAutoPausing ? 'Auto-Pausing Update' : 'Active / Running') : 'Paused / Stopped'}
+            </span>
+            <span className="text-xs text-white/40 mt-1">Elapsed: {flag.elapsedSeconds ?? 0}s</span>
+          </div>
+
+          <div className="flex flex-col">
+            <span className="text-xs text-white/50 uppercase font-semibold">Round Time Remaining</span>
+            <span className="text-xl font-bold text-amber-400">
+              {Math.floor((flag.timeLeft ?? 0) / 60)}m {(flag.timeLeft ?? 0) % 60}s
+            </span>
+            <span className="text-xs text-white/40 mt-1">Duration: {flag.roundDurationSeconds ? `${flag.roundDurationSeconds / 60} min` : 'Unlimited'}</span>
+          </div>
+
+          <div className="flex flex-col">
+            <span className="text-xs text-white/50 uppercase font-semibold">Next News Auto-Release</span>
+            <span className="text-xl font-bold text-cyan-400">
+              {flag.value ? (flag.isAutoPausing ? 'Releasing now...' : `in ${flag.nextReleaseInSeconds ?? 0}s`) : 'Paused'}
+            </span>
+            <span className="text-xs text-white/40 mt-1">Interval: every {flag.newsReleaseIntervalSeconds ?? 300}s</span>
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className={'gap-4 flex flex-wrap items-end'}>
           <div className={'flex flex-col gap-2'}>
             <Label className="text-white">Round Duration (minutes)</Label>
             <Input
@@ -746,22 +912,83 @@ const BigBlackSwitch = () => {
               placeholder="Minutes (e.g. 15)"
               value={durationMinutes}
               onChange={(e) => setDurationMinutes(e.target.value)}
-              className="w-48 text-white bg-black/50"
+              className="w-44 text-white bg-black/50"
             />
           </div>
-          <Button className={flag.value ? 'pointer-events-none opacity-50': ''} onClick={resumeFlag}>
+
+          <Button disabled={actionLoading || flag.value} onClick={resumeFlag}>
             Ateeb says go
           </Button>
-          <Button className={!flag.value ? 'pointer-events-none opacity-50' : ''} onClick={pauseFlag}>
+          <Button disabled={actionLoading || !flag.value} onClick={pauseFlag}>
             Ateeb says pause
           </Button>
-          <Button variant="outline" className="text-amber-400 border-amber-400/40 hover:bg-amber-400/10 font-bold" onClick={resetNewsQueue}>
-            Reset Queue to Header #5 (Next: #6)
+
+          <Button
+            variant="outline"
+            disabled={actionLoading}
+            className="text-cyan-400 border-cyan-400/40 hover:bg-cyan-400/20 font-bold"
+            onClick={releaseNextNews}
+          >
+            ⚡ Release Next News Now
           </Button>
+
+          <Button
+            variant="outline"
+            disabled={actionLoading}
+            className="text-amber-400 border-amber-400/40 hover:bg-amber-400/10 font-bold"
+            onClick={resetNewsQueue}
+          >
+            Reset Queue to Header #15 (Next: #16)
+          </Button>
+
+          <Button
+            variant="outline"
+            disabled={actionLoading}
+            className="text-red-400 border-red-400/40 hover:bg-red-400/10 font-bold"
+            onClick={deleteDummyHeaders}
+          >
+            🗑️ Delete Dummy Headers
+          </Button>
+        </div>
+
+        {/* News Release Interval Configurator */}
+        <div className="p-4 rounded-xl bg-black/30 border border-white/10 flex flex-col gap-3">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <Label className="text-white font-semibold">Auto-Release Schedule Interval</Label>
+            <span className="text-xs text-white/50">Current: {flag.newsReleaseIntervalSeconds ?? 300} seconds</span>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <Input
+              type="number"
+              placeholder="Interval (seconds)"
+              value={intervalSeconds}
+              onFocus={() => setIsEditingInterval(true)}
+              onChange={(e) => {
+                setIsEditingInterval(true);
+                setIntervalSeconds(e.target.value);
+              }}
+              className="w-44 text-white bg-black/50"
+            />
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={actionLoading}
+              onClick={() => saveInterval()}
+            >
+              Save Interval
+            </Button>
+            <div className="flex items-center gap-1.5 ml-2">
+              <span className="text-xs text-white/40 mr-1">Presets:</span>
+              <Button size="sm" variant="outline" className="text-xs py-1 px-2.5 h-8" onClick={() => saveInterval(30)}>30s</Button>
+              <Button size="sm" variant="outline" className="text-xs py-1 px-2.5 h-8" onClick={() => saveInterval(60)}>60s (1m)</Button>
+              <Button size="sm" variant="outline" className="text-xs py-1 px-2.5 h-8" onClick={() => saveInterval(120)}>120s (2m)</Button>
+              <Button size="sm" variant="outline" className="text-xs py-1 px-2.5 h-8" onClick={() => saveInterval(300)}>300s (5m)</Button>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 const LeaderboardAhh = () => {

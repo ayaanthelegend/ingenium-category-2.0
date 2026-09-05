@@ -23,6 +23,12 @@ export class Flag extends Document {
 
   @Prop({ default: false })
   isAutoPausing: boolean;
+
+  @Prop({ default: 300 })
+  newsReleaseIntervalSeconds: number;
+
+  @Prop({ default: false })
+  dummyHeadersSeeded: boolean;
 }
 
 export const FlagSchema = SchemaFactory.createForClass(Flag);

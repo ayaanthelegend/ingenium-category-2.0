@@ -39,13 +39,36 @@ export class NewsService {
     return this.newsModel.deleteOne({_id: new Types.ObjectId(id)});
   }
 
-  async resetQueueToHeader5(currentElapsed: number): Promise<{ success: boolean; message: string }> {
-    await this.newsModel.updateMany({ sequence: { $gte: 6 } }, { released: false }).exec();
-    await this.newsModel.updateMany({ sequence: { $lte: 5 } }, { released: true }).exec();
+  async resetQueueToHeader15(currentElapsed: number): Promise<{ success: boolean; message: string }> {
+    await this.newsModel.updateMany({ sequence: { $gt: 15 } }, { released: false }).exec();
+    await this.newsModel.updateMany({ sequence: { $lte: 15 } }, { released: true }).exec();
 
     return {
       success: true,
-      message: 'News queue reset back to Header #5. Click "Ateeb says go" to start countdown for Header #6!',
+      message: 'News queue synchronized to Header #15. Next in line: Header #16 (or dummy test headers)!',
+    };
+  }
+
+  async resetQueueToHeader10(currentElapsed: number): Promise<{ success: boolean; message: string }> {
+    return this.resetQueueToHeader15(currentElapsed);
+  }
+
+  async resetQueueToHeader5(currentElapsed: number): Promise<{ success: boolean; message: string }> {
+    return this.resetQueueToHeader15(currentElapsed);
+  }
+
+  async deleteDummyHeaders(): Promise<{ success: boolean; deletedCount: number; message: string }> {
+    const res = await this.newsModel.deleteMany({
+      $or: [
+        { sequence: { $in: [15.1, 15.2] } },
+        { headline: { $regex: /\[TEST DUMMY/i } }
+      ]
+    }).exec();
+
+    return {
+      success: true,
+      deletedCount: res.deletedCount || 0,
+      message: `Deleted ${res.deletedCount || 0} dummy test headers. News queue is now set to start from Header #16!`,
     };
   }
 }
