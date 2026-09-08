@@ -19,22 +19,18 @@ npm install --prefix Den-WOWS-Backend
 npm install --prefix Den-WOWS-Frontend
 ```
 
-### 2️⃣ Environment & Vercel Configuration
-All environment variables (`.env`, `.env.local`) and Vercel project configurations (`.vercel/project.json`) are committed to this repository.
+### 2️⃣ Environment Configuration
+Copy the example environment files and update them with your local or production values:
 
-- **Backend Environment (`Den-WOWS-Backend/.env`)**:
-  ```env
-  PORT=3000
-  MONGO_URI=mongodb://localhost/nest-auth
-  ADMIN_KEY=admin123
-  JWT_SECRET=supersecretjwtkey
+- **Backend Environment**:
+  ```bash
+  cp Den-WOWS-Backend/.env.example Den-WOWS-Backend/.env
   ```
-  *(Note: If local MongoDB is not running on port 27017, the NestJS backend automatically starts an in-memory MongoDB server)*
+  *(Note: If local MongoDB is not running on port 27017, the NestJS backend automatically falls back to an in-memory MongoDB server)*
 
-- **Frontend Environment (`Den-WOWS-Frontend/.env.local`)**:
-  ```env
-  NEXT_PUBLIC_API_URL=https://ingenium-category-2-0.onrender.com
-  NEXT_PUBLIC_SERVER_URL=https://ingenium-category-2-0.onrender.com
+- **Frontend Environment**:
+  ```bash
+  cp Den-WOWS-Frontend/.env.example Den-WOWS-Frontend/.env.local
   ```
 
 ---
@@ -74,3 +70,8 @@ npm run dev
 - **Frontend (Vercel):** `https://goldmansgambit-ayaanthelegends-projects.vercel.app`
 - **Backend (Render):** `https://ingenium-category-2-0.onrender.com`
 - **Backend Health Endpoint:** `https://ingenium-category-2-0.onrender.com/health`
+
+---
+
+## 📄 License
+This project is licensed under the [GNU General Public License v3.0](LICENSE) (GPL-3.0). Free and open-source software — copyleft ensures that any modified or derivative versions must also remain free and open source under the same license.
