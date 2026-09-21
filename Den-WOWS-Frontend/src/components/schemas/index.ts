@@ -48,6 +48,7 @@ export interface News {
   sequence: number;
   effects: StockEffect[];
   released?: boolean;
+  releasedAt?: string | Date;
 }
 export interface UpdateNewsDto {
   headline: string;
@@ -55,6 +56,7 @@ export interface UpdateNewsDto {
   sequence: number;
   effects?: StockEffect[];
   released?: boolean;
+  releasedAt?: string | Date;
 }
 export interface Flag {
   key: string;

@@ -503,17 +503,44 @@ const NewsThing = () => {
     }
   };
 
-  const releaseNext = async () => {
+  const [releasingId, setReleasingId] = useState<string | null>(null);
+  const [releaseErrors, setReleaseErrors] = useState<{ [id: string]: string }>({});
+
+  const releaseSingleNews = async (id: string) => {
+    if (releasingId) return;
+    setReleasingId(id);
+    setReleaseErrors((prev) => {
+      const copy = { ...prev };
+      delete copy[id];
+      return copy;
+    });
+
     try {
-      const resp = await axios.post(`${serverUrl}/news/release-next`, {}, {
+      const resp = await axios.post(`${serverUrl}/news/${id}/release`, {}, {
         headers: { Authorization: getAdminAuthHeader() }
       });
-      alert(resp.data?.message || "News released!");
-      await getNews();
-      await getStocks();
-    } catch (e) {
-      console.error("Failed to release next news", e);
-      alert("Failed to release news.");
+      if (resp.data && resp.data.success) {
+        setNews((prevNews) =>
+          prevNews.map((item) =>
+            item._id === id
+              ? { ...item, released: true, releasedAt: resp.data.news?.releasedAt || new Date().toISOString() }
+              : item
+          )
+        );
+        await getStocks();
+      } else {
+        throw new Error(resp.data?.message || "Failed to release news");
+      }
+    } catch (err: unknown) {
+      console.error("Failed to release news", err);
+      let errMsg = "Failed to release news";
+      if (axios.isAxiosError(err)) {
+        errMsg = err.response?.data?.message || err.message;
+        if (Array.isArray(errMsg)) errMsg = errMsg.join(', ');
+      }
+      setReleaseErrors((prev) => ({ ...prev, [id]: errMsg }));
+    } finally {
+      setReleasingId(null);
     }
   };
 
@@ -704,14 +731,28 @@ const NewsThing = () => {
                         </form>
                       </DialogContent>
                     </Dialog>
-                    {!isReleased && (
+                    {isReleased ? (
                       <Button
+                        disabled
                         variant="outline"
-                        className="text-amber-400 border-amber-400/40 hover:bg-amber-400/20 font-bold"
-                        onClick={releaseNext}
+                        className="border-green-500/40 text-green-400 opacity-80 cursor-not-allowed font-medium text-xs sm:text-sm"
                       >
-                        ⚡ Release Now
+                        Released{n.releasedAt ? ` (${new Date(n.releasedAt).toLocaleTimeString()})` : ''}
                       </Button>
+                    ) : (
+                      <div className="flex flex-col items-end gap-1">
+                        <Button
+                          variant="outline"
+                          disabled={releasingId === n._id}
+                          className="text-amber-400 border-amber-400/40 hover:bg-amber-400/20 font-bold"
+                          onClick={() => releaseSingleNews(n._id)}
+                        >
+                          {releasingId === n._id ? 'Releasing...' : 'Release news'}
+                        </Button>
+                        {releaseErrors[n._id] && (
+                          <span className="text-xs text-red-400 font-semibold">{releaseErrors[n._id]}</span>
+                        )}
+                      </div>
                     )}
                     <Button onClick={() => deleteNews(n._id)}>
                       Delete
@@ -732,9 +773,8 @@ const NewsThing = () => {
 const BigBlackSwitch = () => {
   const [flag, setFlag] = useState<Flag | null>(null);
   const [durationMinutes, setDurationMinutes] = useState<number | string>("");
-  const [intervalSeconds, setIntervalSeconds] = useState<number | string>("");
-  const [isEditingInterval, setIsEditingInterval] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [now, setNow] = useState(Date.now());
 
   const getFlag = async () => {
     try {
@@ -742,11 +782,8 @@ const BigBlackSwitch = () => {
         headers: { Authorization: getAdminAuthHeader() }
       });
       setFlag(resp.data);
-      if (resp.data && resp.data.roundDurationSeconds) {
-        setDurationMinutes(resp.data.roundDurationSeconds / 60);
-      }
-      if (resp.data && resp.data.newsReleaseIntervalSeconds && !isEditingInterval) {
-        setIntervalSeconds(resp.data.newsReleaseIntervalSeconds);
+      if (resp.data && resp.data.roundDurationSeconds !== undefined) {
+        setDurationMinutes(resp.data.roundDurationSeconds ? resp.data.roundDurationSeconds / 60 : "");
       }
     } catch (e) {
       console.error("Failed to fetch flag", e);
@@ -770,51 +807,15 @@ const BigBlackSwitch = () => {
   const resumeFlag = async () => {
     setActionLoading(true);
     try {
-      const durationSeconds = durationMinutes ? Math.round(Number(durationMinutes) * 60) : 0;
+      const durationSeconds = durationMinutes !== "" && !isNaN(Number(durationMinutes))
+        ? Math.round(Number(durationMinutes) * 60)
+        : 0;
       await axios.post(`${serverUrl}/flags/start`, { durationSeconds }, {
         headers: { Authorization: getAdminAuthHeader() }
       });
       await getFlag();
     } catch (e) {
       console.error("Failed to start flag", e);
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const saveInterval = async (sec?: number) => {
-    const val = sec !== undefined ? sec : Number(intervalSeconds);
-    if (!val || val < 5) {
-      alert("Please specify at least 5 seconds.");
-      return;
-    }
-    setActionLoading(true);
-    try {
-      await axios.post(`${serverUrl}/flags/set-interval`, { seconds: val }, {
-        headers: { Authorization: getAdminAuthHeader() }
-      });
-      setIntervalSeconds(val);
-      setIsEditingInterval(false);
-      await getFlag();
-    } catch (e) {
-      console.error("Failed to set interval", e);
-      alert("Failed to save interval.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const releaseNextNews = async () => {
-    setActionLoading(true);
-    try {
-      const resp = await axios.post(`${serverUrl}/news/release-next`, {}, {
-        headers: { Authorization: getAdminAuthHeader() }
-      });
-      alert(resp.data?.message || 'News released!');
-      await getFlag();
-    } catch (e) {
-      console.error("Failed to release news", e);
-      alert("Failed to release news.");
     } finally {
       setActionLoading(false);
     }
@@ -836,31 +837,56 @@ const BigBlackSwitch = () => {
     }
   };
 
-  const deleteDummyHeaders = async () => {
-    if (!confirm("Are you sure you want to delete the test dummy headers? The queue will then start from Header #16 tomorrow.")) return;
-    setActionLoading(true);
-    try {
-      const resp = await axios.delete(`${serverUrl}/news/dummy-headers`, {
-        headers: { Authorization: getAdminAuthHeader() }
-      });
-      alert(resp.data?.message || 'Dummy headers deleted.');
-      await getFlag();
-      window.location.reload();
-    } catch (e) {
-      console.error("Failed to delete dummy headers", e);
-      alert("Failed to delete dummy headers.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
   useEffect(() => {
     getFlag();
     const interval = setInterval(() => {
       getFlag();
     }, 2000);
-    return () => clearInterval(interval);
+
+    const ticker = setInterval(() => {
+      setNow(Date.now());
+    }, 500);
+
+    const handleSync = () => {
+      if (document.visibilityState === 'visible') {
+        setNow(Date.now());
+        getFlag();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleSync);
+    window.addEventListener('focus', handleSync);
+    window.addEventListener('online', handleSync);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(ticker);
+      document.removeEventListener('visibilitychange', handleSync);
+      window.removeEventListener('focus', handleSync);
+      window.removeEventListener('online', handleSync);
+    };
   }, []);
+
+  const durationSeconds = durationMinutes !== "" && !isNaN(Number(durationMinutes))
+    ? Math.max(0, Math.round(Number(durationMinutes) * 60))
+    : (flag?.roundDurationSeconds || 0);
+
+  const calculateElapsed = () => {
+    if (!flag) return 0;
+    const accumulated = Math.max(0, flag.accumulatedSeconds || 0);
+    if (!flag.value) {
+      return durationSeconds > 0 ? Math.min(accumulated, durationSeconds) : accumulated;
+    }
+    const startTime = flag.startedAt
+      ? (typeof flag.startedAt === 'number' ? flag.startedAt : new Date(flag.startedAt).getTime())
+      : now;
+    const currentSegment = Math.max(0, Math.floor((now - startTime) / 1000));
+    const total = accumulated + currentSegment;
+    return durationSeconds > 0 ? Math.min(total, durationSeconds) : total;
+  };
+
+  const elapsedSeconds = calculateElapsed();
+  const remainingSeconds = durationSeconds > 0 ? Math.max(0, durationSeconds - elapsedSeconds) : 0;
 
   return flag && (
     <Card className={'w-full p-8'}>
@@ -876,30 +902,22 @@ const BigBlackSwitch = () => {
           )}
         </div>
 
-        {/* Live Status & Auto-Release Countdown */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-xl bg-black/40 border border-white/10">
+        {/* Live Status */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl bg-black/40 border border-white/10">
           <div className="flex flex-col">
             <span className="text-xs text-white/50 uppercase font-semibold">Event Status</span>
             <span className={`text-xl font-bold ${flag.value ? 'text-green-400' : 'text-red-400'}`}>
               {flag.value ? (flag.isAutoPausing ? 'Auto-Pausing Update' : 'Active / Running') : 'Paused / Stopped'}
             </span>
-            <span className="text-xs text-white/40 mt-1">Elapsed: {flag.elapsedSeconds ?? 0}s</span>
+            <span className="text-xs text-white/40 mt-1">Elapsed: {elapsedSeconds}s</span>
           </div>
 
           <div className="flex flex-col">
             <span className="text-xs text-white/50 uppercase font-semibold">Round Time Remaining</span>
             <span className="text-xl font-bold text-amber-400">
-              {Math.floor((flag.timeLeft ?? 0) / 60)}m {(flag.timeLeft ?? 0) % 60}s
+              {Math.floor(remainingSeconds / 60)}m {remainingSeconds % 60}s
             </span>
-            <span className="text-xs text-white/40 mt-1">Duration: {flag.roundDurationSeconds ? `${flag.roundDurationSeconds / 60} min` : 'Unlimited'}</span>
-          </div>
-
-          <div className="flex flex-col">
-            <span className="text-xs text-white/50 uppercase font-semibold">Next News Auto-Release</span>
-            <span className="text-xl font-bold text-cyan-400">
-              {flag.value ? (flag.isAutoPausing ? 'Releasing now...' : `in ${flag.nextReleaseInSeconds ?? 0}s`) : 'Paused'}
-            </span>
-            <span className="text-xs text-white/40 mt-1">Interval: every {flag.newsReleaseIntervalSeconds ?? 300}s</span>
+            <span className="text-xs text-white/40 mt-1">Duration: {durationSeconds ? `${durationSeconds / 60} min` : 'Unlimited'}</span>
           </div>
         </div>
 
@@ -917,19 +935,10 @@ const BigBlackSwitch = () => {
           </div>
 
           <Button disabled={actionLoading || flag.value} onClick={resumeFlag}>
-            Ateeb says go
+            Event started
           </Button>
           <Button disabled={actionLoading || !flag.value} onClick={pauseFlag}>
-            Ateeb says pause
-          </Button>
-
-          <Button
-            variant="outline"
-            disabled={actionLoading}
-            className="text-cyan-400 border-cyan-400/40 hover:bg-cyan-400/20 font-bold"
-            onClick={releaseNextNews}
-          >
-            ⚡ Release Next News Now
+            Event paused
           </Button>
 
           <Button
@@ -940,51 +949,6 @@ const BigBlackSwitch = () => {
           >
             Reset Queue to Header #15 (Next: #16)
           </Button>
-
-          <Button
-            variant="outline"
-            disabled={actionLoading}
-            className="text-red-400 border-red-400/40 hover:bg-red-400/10 font-bold"
-            onClick={deleteDummyHeaders}
-          >
-            🗑️ Delete Dummy Headers
-          </Button>
-        </div>
-
-        {/* News Release Interval Configurator */}
-        <div className="p-4 rounded-xl bg-black/30 border border-white/10 flex flex-col gap-3">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <Label className="text-white font-semibold">Auto-Release Schedule Interval</Label>
-            <span className="text-xs text-white/50">Current: {flag.newsReleaseIntervalSeconds ?? 300} seconds</span>
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <Input
-              type="number"
-              placeholder="Interval (seconds)"
-              value={intervalSeconds}
-              onFocus={() => setIsEditingInterval(true)}
-              onChange={(e) => {
-                setIsEditingInterval(true);
-                setIntervalSeconds(e.target.value);
-              }}
-              className="w-44 text-white bg-black/50"
-            />
-            <Button
-              size="sm"
-              variant="secondary"
-              disabled={actionLoading}
-              onClick={() => saveInterval()}
-            >
-              Save Interval
-            </Button>
-            <div className="flex items-center gap-1.5 ml-2">
-              <span className="text-xs text-white/40 mr-1">Presets:</span>
-              <Button size="sm" variant="outline" className="text-xs py-1 px-2.5 h-8" onClick={() => saveInterval(30)}>30s</Button>
-              <Button size="sm" variant="outline" className="text-xs py-1 px-2.5 h-8" onClick={() => saveInterval(60)}>60s (1m)</Button>
-              <Button size="sm" variant="outline" className="text-xs py-1 px-2.5 h-8" onClick={() => saveInterval(120)}>120s (2m)</Button>
-              <Button size="sm" variant="outline" className="text-xs py-1 px-2.5 h-8" onClick={() => saveInterval(300)}>300s (5m)</Button>
-            </div>
-          </div>
         </div>
       </CardContent>
     </Card>

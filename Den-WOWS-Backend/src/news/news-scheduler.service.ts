@@ -30,9 +30,8 @@ export class NewsSchedulerService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit() {
-    this.logger.log(`[NewsScheduler] Initializing auto-release scheduler service...`);
+    this.logger.log(`[NewsScheduler] Initializing news scheduler service (manual release mode)...`);
     await this.ensureQueuedNewsSeeded();
-    this.timer = setInterval(() => this.checkAndReleaseNextNews(), 3000);
   }
 
   onModuleDestroy() {

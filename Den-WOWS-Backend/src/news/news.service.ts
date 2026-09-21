@@ -28,7 +28,14 @@ export class NewsService {
   }
 
   async publishNews(id: string): Promise<NewsDocument | null> {
-    return this.newsModel.findByIdAndUpdate(id, { released: true }, { new: true }).exec();
+    const existing = await this.newsModel.findById(id).exec();
+    if (!existing) return null;
+    if (existing.released) {
+      return existing;
+    }
+    existing.released = true;
+    existing.releasedAt = new Date();
+    return existing.save();
   }
 
   async updateNews(id: string, updateNewsDto: Partial<UpdateNewsDto>) {

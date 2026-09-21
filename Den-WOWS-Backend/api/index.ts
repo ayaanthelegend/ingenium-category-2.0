@@ -27,6 +27,10 @@ async function bootstrap() {
 }
 
 export default async function handler(req: any, res: any) {
+  const commitRef = process.env.VERCEL_GIT_COMMIT_REF;
+  if (process.env.VERCEL === '1' && commitRef === 'main') {
+    return res.status(403).send('Deployment on the main branch is disabled. Only the Ingenium-edition-2026 branch is active.');
+  }
   if (!isAppInitialized) {
     await bootstrap();
   }

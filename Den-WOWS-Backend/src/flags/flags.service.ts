@@ -9,13 +9,17 @@ export class FlagsService {
 
   getElapsedSeconds(flag: any): number {
     if (!flag) return 0;
-    const accumulated = flag.accumulatedSeconds || 0;
-    if (!flag.value) return accumulated;
+    const duration = flag.roundDurationSeconds || 0;
+    const accumulated = Math.max(0, flag.accumulatedSeconds || 0);
+    if (!flag.value) {
+      return duration > 0 ? Math.min(accumulated, duration) : accumulated;
+    }
     const startTime = flag.startedAt
       ? (typeof flag.startedAt === 'number' ? flag.startedAt : new Date(flag.startedAt).getTime())
       : Date.now();
     const currentSegment = Math.max(0, Math.floor((Date.now() - startTime) / 1000));
-    return accumulated + currentSegment;
+    const total = accumulated + currentSegment;
+    return duration > 0 ? Math.min(total, duration) : total;
   }
 
   async getFlag(key: string): Promise<boolean> {
@@ -33,6 +37,10 @@ export class FlagsService {
     if (!flag.value) return false;
     const elapsed = this.getElapsedSeconds(flag);
     if (flag.roundDurationSeconds > 0 && elapsed >= flag.roundDurationSeconds) {
+      await this.flagModel.findOneAndUpdate(
+        { key },
+        { value: false, accumulatedSeconds: flag.roundDurationSeconds }
+      );
       return false;
     }
     return true;
@@ -40,27 +48,27 @@ export class FlagsService {
 
   async start(durationSeconds?: number) {
     const existingFlag = await this.flagModel.findOne({ key: 'global' }).exec();
-    const updateData: any = {
-      startedAt: Date.now(),
-      value: true,
-    };
+    let newDuration = existingFlag?.roundDurationSeconds || 0;
 
     if (durationSeconds !== undefined && durationSeconds !== null && !isNaN(Number(durationSeconds))) {
-      updateData.roundDurationSeconds = Number(durationSeconds);
+      newDuration = Number(durationSeconds);
     }
 
-    const duration = updateData.roundDurationSeconds ?? existingFlag?.roundDurationSeconds ?? 0;
     const currentElapsed = existingFlag ? this.getElapsedSeconds(existingFlag) : 0;
+    let accumulated = existingFlag?.accumulatedSeconds || 0;
 
-    if (!existingFlag || existingFlag.accumulatedSeconds === undefined || existingFlag.accumulatedSeconds === null) {
-      updateData.accumulatedSeconds = 0;
-      updateData.lastReleaseElapsedSeconds = 0;
-    } else if (duration > 0 && currentElapsed >= duration) {
-      updateData.accumulatedSeconds = 0;
-      updateData.lastReleaseElapsedSeconds = 0;
+    // Reset accumulated time if previous round expired or corrupt
+    if (!existingFlag || accumulated < 0 || (newDuration > 0 && currentElapsed >= newDuration)) {
+      accumulated = 0;
     }
 
-    updateData.isAutoPausing = false;
+    const updateData: any = {
+      startedAt: Date.now(),
+      accumulatedSeconds: accumulated,
+      roundDurationSeconds: newDuration,
+      value: true,
+      isAutoPausing: false,
+    };
 
     return this.flagModel.findOneAndUpdate(
       { key: 'global' },
@@ -78,13 +86,18 @@ export class FlagsService {
       ? (typeof flag.startedAt === 'number' ? flag.startedAt : new Date(flag.startedAt).getTime())
       : Date.now();
     const elapsed = Math.max(0, Math.floor((Date.now() - startTime) / 1000));
+    const duration = flag.roundDurationSeconds || 0;
+    let newAccumulated = (flag.accumulatedSeconds || 0) + elapsed;
+    if (duration > 0 && newAccumulated >= duration) {
+      newAccumulated = duration;
+    }
+
     return this.flagModel.findOneAndUpdate(
       { key: 'global' },
       {
         value: false,
-        $inc: {
-          accumulatedSeconds: elapsed,
-        },
+        accumulatedSeconds: newAccumulated,
+        isAutoPausing: false,
       },
       { upsert: true, new: true },
     );
@@ -107,26 +120,29 @@ export class FlagsService {
       await flag.save();
     }
 
-    const obj: any = flag.toObject ? flag.toObject() : { ...flag };
-    const elapsed = this.getElapsedSeconds(flag);
     const duration = flag.roundDurationSeconds || 0;
-    const interval = (flag.newsReleaseIntervalSeconds && flag.newsReleaseIntervalSeconds > 0)
-      ? flag.newsReleaseIntervalSeconds
-      : (process.env.NEWS_RELEASE_INTERVAL_SEC ? Number(process.env.NEWS_RELEASE_INTERVAL_SEC) : 300);
-    const lastRelease = flag.lastReleaseElapsedSeconds || 0;
-    const timeSinceLast = Math.max(0, elapsed - lastRelease);
 
+    // Self-heal corrupt accumulatedSeconds if found in DB
+    if (duration > 0 && (flag.accumulatedSeconds || 0) > duration) {
+      flag.accumulatedSeconds = duration;
+      await flag.save();
+    }
+
+    const elapsed = this.getElapsedSeconds(flag);
+
+    // If active round has reached duration, freeze state in DB
+    if (duration > 0 && elapsed >= duration && flag.value) {
+      flag.value = false;
+      flag.accumulatedSeconds = duration;
+      await flag.save();
+    }
+
+    const obj: any = flag.toObject ? flag.toObject() : { ...flag };
     obj.elapsedSeconds = elapsed;
     obj.roundDurationSeconds = duration;
     obj.timeLeft = duration > 0 ? Math.max(0, duration - elapsed) : 0;
     obj.isAutoPausing = Boolean(flag.isAutoPausing);
-    obj.newsReleaseIntervalSeconds = interval;
-    obj.lastReleaseElapsedSeconds = lastRelease;
-    obj.nextReleaseInSeconds = Math.max(0, interval - timeSinceLast);
 
-    if (flag.isAutoPausing) {
-      obj.autoPauseMessage = 'Market paused — new update incoming';
-    }
     if (duration > 0 && elapsed >= duration) {
       obj.value = false;
     }

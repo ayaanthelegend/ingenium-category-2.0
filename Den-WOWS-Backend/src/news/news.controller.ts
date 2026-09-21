@@ -62,10 +62,18 @@ export class NewsController {
     return { success: true, message: 'Queued news verified and seeded.' };
   }
 
-  @Post('release-next')
+  @Post(':id/release')
   @UseGuards(AdminKeyGuard)
-  async releaseNext() {
-    return this.newsSchedulerService.releaseNextNewsImmediately();
+  async releaseNewsItem(@Param('id') id: string) {
+    const news = await this.newsService.publishNews(id);
+    if (!news) {
+      return { success: false, message: 'News item not found.' };
+    }
+    return {
+      success: true,
+      message: `Released Headline #${news.sequence}: "${news.headline}" successfully!`,
+      news,
+    };
   }
 
   @Post('reset-queue')

@@ -20,6 +20,9 @@ export class News {
 
   @Prop({ default: true })
   released: boolean;
+
+  @Prop()
+  releasedAt?: Date;
 }
 
 export const NewsSchema = SchemaFactory.createForClass(News);
