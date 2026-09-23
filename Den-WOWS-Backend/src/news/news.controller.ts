@@ -38,7 +38,6 @@ export class NewsController {
   }
 
   @Get('')
-  @UseGuards(JwtAuthGuard)
   async getNews() {
     const allNews = await this.newsService.getPublishedNews();
     const sorted = [...allNews].sort((a, b) => a.sequence - b.sequence);
