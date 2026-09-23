@@ -821,22 +821,6 @@ const BigBlackSwitch = () => {
     }
   };
 
-  const resetNewsQueue = async () => {
-    setActionLoading(true);
-    try {
-      const resp = await axios.post(`${serverUrl}/news/reset-queue`, {}, {
-        headers: { Authorization: getAdminAuthHeader() }
-      });
-      alert(resp.data?.message || 'News queue set to Header #15. Next in line: Header #16.');
-      await getFlag();
-    } catch (e) {
-      console.error("Failed to reset news queue", e);
-      alert("Failed to reset news queue.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
   useEffect(() => {
     getFlag();
     const interval = setInterval(() => {
@@ -941,14 +925,6 @@ const BigBlackSwitch = () => {
             Event paused
           </Button>
 
-          <Button
-            variant="outline"
-            disabled={actionLoading}
-            className="text-primary border-primary/40 hover:bg-primary/10 font-bold"
-            onClick={resetNewsQueue}
-          >
-            Reset Queue to Header #15 (Next: #16)
-          </Button>
         </div>
       </CardContent>
     </Card>
