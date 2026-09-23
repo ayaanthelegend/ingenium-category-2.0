@@ -87,7 +87,7 @@ export default function MobileLayout({
               onClick={() => setActiveProgram(null)}
               variant="outline"
               size="sm"
-              className="text-amber-400 border-amber-400/40 hover:bg-amber-400/10 font-bold"
+              className="text-primary border-primary/40 hover:bg-primary/10 font-bold"
             >
               ← Back to Apps
             </Button>
@@ -104,14 +104,14 @@ export default function MobileLayout({
           <div className="flex flex-col items-center text-center pt-4">
             <div className="flex items-center gap-3">
               <Image
-                src="/logowithbg.png"
+                src="/Logo-Alt.png"
                 width={44}
                 height={44}
                 alt="logo"
-                className="rounded-xl object-cover border border-amber-400/40"
+                className="rounded-xl border border-primary/40"
               />
               <div className="text-left">
-                <h1 className="text-2xl font-black text-[#FFBF00]">Goldmans Gambit</h1>
+                <h1 className="text-2xl font-black text-primary/60">wolves of wall street</h1>
                 <h2 className="text-xs font-light text-white/60">mobile edition</h2>
               </div>
             </div>
@@ -120,17 +120,17 @@ export default function MobileLayout({
             <div className="w-full mt-4">
               {flag && !flag.value ? (
                 flag.isAutoPausing ? (
-                  <div className="text-xs font-bold text-amber-400 bg-amber-500/20 border border-amber-500/40 px-3 py-2 rounded-lg text-center animate-pulse">
+                  <div className="text-xs font-bold text-primary bg-primary/10 border border-primary/30 px-3 py-2 rounded-lg text-center animate-pulse">
                     ⏸ MARKET PAUSED — NEW UPDATE INCOMING
                   </div>
                 ) : (
-                  <div className="text-xs font-bold text-red-500 bg-red-500/20 border border-red-500/40 px-3 py-2 rounded-lg text-center">
+                  <div className="text-xs font-bold text-red-500/90 bg-red-500/10 border border-red-500/30 px-3 py-2 rounded-lg text-center">
                     [ EVENT PAUSED ]
                   </div>
                 )
               ) : (
                 <div className="text-xs font-medium text-white/80 bg-white/10 px-3 py-2 rounded-lg text-center border border-white/10">
-                  Round Time Remaining: <span className="font-bold text-amber-400">{formatTimeLeft(timeLeft)}</span>
+                  Round Time Remaining: <span className="font-bold text-primary">{formatTimeLeft(timeLeft)}</span>
                 </div>
               )}
             </div>
@@ -142,11 +142,11 @@ export default function MobileLayout({
           <Card
             onClick={() => setActiveProgram("news")}
             className={`p-0 w-full cursor-pointer transition duration-300 ${
-              newsFlash ? "ring-4 ring-amber-400 bg-amber-500/30 animate-pulse" : "bg-black/60 border-primary/30 hover:border-amber-400/50"
+              newsFlash ? "ring-2 ring-primary bg-primary/20 animate-pulse" : "bg-black/60 border-primary/30 hover:border-primary/50"
             }`}
           >
             <CardContent className="p-4">
-              <div className="flex items-center justify-between text-xs text-amber-400 font-bold mb-1">
+              <div className="flex items-center justify-between text-xs text-primary font-bold mb-1">
                 <span>UPDATES TICKER</span>
                 {newsFlash && <span className="animate-bounce">★ NEW UPDATE</span>}
               </div>
@@ -172,13 +172,13 @@ export default function MobileLayout({
                       setActiveProgram(program.name);
                     }
                   }}
-                  className={`p-0 cursor-pointer transition duration-300 active:scale-95 bg-black/50 border border-white/10 hover:border-amber-400/50 ${
-                    isNewsFlash ? "ring-4 ring-amber-400 bg-amber-500/30 animate-bounce" : ""
+                  className={`p-0 cursor-pointer transition duration-300 active:scale-95 bg-black/50 border border-primary/20 hover:border-primary/50 ${
+                    isNewsFlash ? "ring-2 ring-primary bg-primary/20 animate-bounce" : ""
                   }`}
                 >
                   <CardContent className="p-4 flex flex-col items-center text-center gap-2">
-                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-400/30 flex items-center justify-center">
-                      <IconComp size={28} className={isNewsFlash ? "text-amber-400" : "text-amber-400/80"} />
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center">
+                      <IconComp size={28} className={isNewsFlash ? "text-primary" : "text-primary/70"} />
                     </div>
                     <span className="text-sm font-medium text-white">{program.label}</span>
                   </CardContent>
@@ -188,7 +188,7 @@ export default function MobileLayout({
           </div>
 
           <footer className="text-center text-xs text-white/40 mt-6 pb-4">
-            <span onClick={refreshAllData} className="text-white font-bold underline cursor-pointer">Refresh Data</span> • made with &lt;3 by Ayaan Bilal
+            <span onClick={refreshAllData} className="text-white font-bold underline cursor-pointer">Refresh Data</span> • made with &lt;3 for Markhors Den
           </footer>
         </div>
       )}

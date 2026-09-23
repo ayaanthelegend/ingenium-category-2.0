@@ -263,7 +263,7 @@ export default function Home() {
           getNews()
           getStocks()
           getMe()
-        }}>Refresh</span> made with &lt;3 by Ayaan Bilal
+        }}>Refresh</span> made with &lt;3 for Markhors Den
       </h1>
 
       <motion.div
@@ -272,17 +272,17 @@ export default function Home() {
         transition={{ duration: 1.5 }}
         className="fixed top-16 right-16 flex flex-col items-end"
       >
-        <h1 className="text-3xl font-black text-[#FFBF00]">Goldmans Gambit</h1>
+        <h1 className="text-3xl font-black text-primary/40">wolves of wall street</h1>
         <h2 className="text-xl font-light text-white/60">desktop edition</h2>
         {flag && !flag.value ? (
           flag.isAutoPausing ? (
-            <h2 className="text-lg font-bold text-amber-400 mt-1 animate-pulse">[ MARKET PAUSED — NEW UPDATE INCOMING ]</h2>
+            <h2 className="text-lg font-bold text-primary mt-1 animate-pulse">[ MARKET PAUSED — NEW UPDATE INCOMING ]</h2>
           ) : (
-            <h2 className="text-lg font-bold text-red-500 mt-1">[ EVENT PAUSED ]</h2>
+            <h2 className="text-lg font-bold text-red-500/80 mt-1">[ EVENT PAUSED ]</h2>
           )
         ) : (
           <div className="flex flex-col items-end mt-1 text-sm text-white/80 font-light">
-            <h2>Round Time Remaining: <span className="font-bold text-amber-400">{formatTimeLeft(timeLeft)}</span></h2>
+            <h2>Round Time Remaining: <span className="font-bold text-primary">{formatTimeLeft(timeLeft)}</span></h2>
           </div>
         )}
         <h2 className="text-sm font-light text-white/60 mt-2">logged in as : {me?.username}</h2>
@@ -291,11 +291,11 @@ export default function Home() {
           animate={{ opacity: 1, translateY: '0%' }}
           transition={{ duration: 1.5, delay: 1.5 }}
         >
-          <Card className={`p-0 w-96 mt-8 transition-all duration-500 ${newsFlash ? 'ring-4 ring-amber-400 bg-amber-500/30 animate-pulse' : ''}`}>
+          <Card className={`p-0 w-96 mt-8 transition-all duration-500 ${newsFlash ? 'ring-2 ring-primary bg-primary/20 animate-pulse' : ''}`}>
             <CardContent className={'p-4'}>
               <h1 className={'w-full text-start text-white/80 font-black text-xl flex items-center justify-between'}>
                 <span>Updates</span>
-                {newsFlash && <span className="text-xs text-amber-400 animate-bounce font-bold">★ NEW UPDATE</span>}
+                {newsFlash && <span className="text-xs text-primary animate-bounce font-bold">★ NEW UPDATE</span>}
               </h1>
               <h1 className={`w-full text-start ${update ? 'text-white' : 'text-white/30'}`}>{update || "No Updates Found"}</h1>
             </CardContent>
@@ -362,11 +362,11 @@ export default function Home() {
                 <div
                   className="w-[48px] h-[48px] flex justify-center items-center bg-primary/10 border border-primary/40 rounded-xl transition duration-500 hover:-translate-y-6 hover:scale-125 cursor-pointer">
                   <Image
-                    src="/logowithbg.png"
+                    src="/Logo-Alt.png"
                     width={48}
                     height={48}
                     alt="logo"
-                    className="rounded-xl object-cover"
+                    className="rounded-xl"
                   />
                 </div>
               </TooltipTrigger>
@@ -385,9 +385,9 @@ export default function Home() {
                 <Tooltip>
                   <TooltipTrigger onClick={() => openProgram(program.name, program.click)}>
                     <div className={`w-[48px] h-[48px] flex justify-center items-center bg-primary/10 border border-primary/40 rounded-xl transition duration-500 hover:-translate-y-6 hover:scale-125 cursor-pointer ${
-                      newsFlash && program.name === 'news' ? 'ring-4 ring-amber-400 bg-amber-500/30 animate-bounce' : ''
+                      newsFlash && program.name === 'news' ? 'ring-2 ring-primary bg-primary/30 animate-bounce' : ''
                     }`}>
-                      <program.item className={newsFlash && program.name === 'news' ? "text-amber-400" : "text-primary/40"} size={32} />
+                      <program.item className={newsFlash && program.name === 'news' ? "text-primary" : "text-primary/40"} size={32} />
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>

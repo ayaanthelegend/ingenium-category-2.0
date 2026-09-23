@@ -633,22 +633,22 @@ const NewsThing = () => {
               const isNextQueued = !isReleased && n.sequence === nextQueuedSeq;
 
               return (
-                <Card key={n._id} className={`w-full p-6 transition-all duration-300 ${isNextQueued ? 'border-amber-400/80 bg-amber-950/20' : ''}`}>
+                <Card key={n._id} className={`w-full p-6 transition-all duration-300 ${isNextQueued ? 'border-primary/80 bg-primary/5' : ''}`}>
                   <CardContent>
                     <div className={'flex w-full justify-between flex-row'}>
                       <div className={'flex justify-start items-start flex-col'}>
                         <div className="flex items-center gap-3 flex-wrap">
                           <h1 className={'text-2xl font-black text-white'}>Heading #{n.sequence} ({n.headline})</h1>
                           {isReleased ? (
-                            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-green-500/20 border border-green-500 text-green-400">
+                            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-primary/10 border border-primary/30 text-primary/80">
                               ✓ RELEASED
                             </span>
                           ) : isNextQueued ? (
-                            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-500/20 border border-amber-400 text-amber-300 animate-pulse">
+                            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-primary/20 border border-primary text-primary animate-pulse">
                               ⏳ QUEUED (NEXT IN LINE)
                             </span>
                           ) : (
-                            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-700/40 border border-slate-600 text-slate-300">
+                            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-white/5 border border-white/10 text-white/50">
                               QUEUED
                             </span>
                           )}
@@ -735,7 +735,7 @@ const NewsThing = () => {
                       <Button
                         disabled
                         variant="outline"
-                        className="border-green-500/40 text-green-400 opacity-80 cursor-not-allowed font-medium text-xs sm:text-sm"
+                        className="border-primary/30 text-primary/70 opacity-70 cursor-not-allowed font-medium text-xs sm:text-sm"
                       >
                         Released{n.releasedAt ? ` (${new Date(n.releasedAt).toLocaleTimeString()})` : ''}
                       </Button>
@@ -744,7 +744,7 @@ const NewsThing = () => {
                         <Button
                           variant="outline"
                           disabled={releasingId === n._id}
-                          className="text-amber-400 border-amber-400/40 hover:bg-amber-400/20 font-bold"
+                          className="text-primary border-primary/40 hover:bg-primary/10 font-bold"
                           onClick={() => releaseSingleNews(n._id)}
                         >
                           {releasingId === n._id ? 'Releasing...' : 'Release news'}
@@ -896,17 +896,17 @@ const BigBlackSwitch = () => {
             the big switch (EVENT IS {flag.value ? 'ON' : 'OFF'})
           </h1>
           {flag.isAutoPausing && (
-            <div className="text-sm font-bold text-amber-300 bg-amber-500/20 border border-amber-400 px-3 py-1 rounded-full animate-pulse">
+            <div className="text-sm font-bold text-primary bg-primary/10 border border-primary/40 px-3 py-1 rounded-full animate-pulse">
               ⏸ AUTO-PAUSING (10s UPDATE WINDOW)
             </div>
           )}
         </div>
 
         {/* Live Status */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl bg-black/40 border border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl bg-black/40 border border-primary/20">
           <div className="flex flex-col">
             <span className="text-xs text-white/50 uppercase font-semibold">Event Status</span>
-            <span className={`text-xl font-bold ${flag.value ? 'text-green-400' : 'text-red-400'}`}>
+            <span className={`text-xl font-bold ${flag.value ? 'text-primary' : 'text-red-400/80'}`}>
               {flag.value ? (flag.isAutoPausing ? 'Auto-Pausing Update' : 'Active / Running') : 'Paused / Stopped'}
             </span>
             <span className="text-xs text-white/40 mt-1">Elapsed: {elapsedSeconds}s</span>
@@ -914,7 +914,7 @@ const BigBlackSwitch = () => {
 
           <div className="flex flex-col">
             <span className="text-xs text-white/50 uppercase font-semibold">Round Time Remaining</span>
-            <span className="text-xl font-bold text-amber-400">
+            <span className="text-xl font-bold text-primary">
               {Math.floor(remainingSeconds / 60)}m {remainingSeconds % 60}s
             </span>
             <span className="text-xs text-white/40 mt-1">Duration: {durationSeconds ? `${durationSeconds / 60} min` : 'Unlimited'}</span>
@@ -930,7 +930,7 @@ const BigBlackSwitch = () => {
               placeholder="Minutes (e.g. 15)"
               value={durationMinutes}
               onChange={(e) => setDurationMinutes(e.target.value)}
-              className="w-44 text-white bg-black/50"
+              className="w-44 text-white bg-black/50 border-primary/40 focus:border-primary"
             />
           </div>
 
@@ -944,7 +944,7 @@ const BigBlackSwitch = () => {
           <Button
             variant="outline"
             disabled={actionLoading}
-            className="text-amber-400 border-amber-400/40 hover:bg-amber-400/10 font-bold"
+            className="text-primary border-primary/40 hover:bg-primary/10 font-bold"
             onClick={resetNewsQueue}
           >
             Reset Queue to Header #15 (Next: #16)

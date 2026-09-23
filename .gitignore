@@ -28,6 +28,13 @@ next-env.d.ts.bak
 !**/.env.example
 !.env.example
 
+# Reference designs
+DEN Design/
+Den/
+/Den/
+**/DEN Design/
+**/Den/
+
 # Vercel deployment artifacts
 .vercel/
 **/.vercel/

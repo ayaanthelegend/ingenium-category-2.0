@@ -8,8 +8,8 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: "Goldmans Gambit | Ingenium 2026",
-  description: "Ingenium 2026",
+  title: "Wolves of Wall Street",
+  description: "Markhors Den",
 };
 
 export default function RootLayout({
