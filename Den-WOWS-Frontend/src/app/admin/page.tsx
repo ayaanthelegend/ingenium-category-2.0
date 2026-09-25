@@ -27,6 +27,12 @@ import {
   Flag,
   UpdateNewsDto, StockUser
 } from "@/components/schemas";
+import teamCredentialsData from "@/data/team_credentials.json";
+
+const credentialsMap = new Map<string, { sno: string; team: string; password: string }>(
+  teamCredentialsData.map((item) => [item.team.trim().toLowerCase(), item])
+);
+
 const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 const serverUrl = (rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : `https://${rawUrl}`).replace(/\/+$/, '');
 
@@ -152,16 +158,60 @@ const Users = () => {
     }
   }
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isCredListOpen, setIsCredListOpen] = useState(false);
+  const [copiedTeam, setCopiedTeam] = useState<string | null>(null);
+
+  const handleCopy = (team: string, pass: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(`Team: ${team} | Password: ${pass}`);
+      setCopiedTeam(team);
+      setTimeout(() => setCopiedTeam(null), 2000);
+    }
+  };
+
   useEffect(() => {
     getUsers();
   }, []);
 
+  const filteredUsers = users.filter((u) =>
+    u.username.toLowerCase().includes(searchQuery.toLowerCase().trim())
+  );
+
   return (
     <Card className={'w-full p-8'}>
       <CardContent>
-        <div className={'flex w-full justify-between flex-row'}>
-          <h1 className={'text-5xl font-black text-white'}>Users</h1>
-          <div className={'flex justify-start items-center gap-4'}>
+        <div className={'flex w-full justify-between items-center flex-wrap gap-4'}>
+          <div className="flex items-baseline gap-3">
+            <h1 className={'text-5xl font-black text-white'}>Users</h1>
+            <span className="text-xl font-bold text-white/50">
+              ({filteredUsers.length}{searchQuery ? ` of ${users.length}` : ''} Teams)
+            </span>
+          </div>
+
+          <div className={'flex justify-start items-center gap-3 flex-wrap'}>
+            <Input
+              placeholder="Search team name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-56 bg-neutral-900 border-white/20 text-white placeholder:text-white/40"
+            />
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsCredListOpen(true)}
+              className="border-primary/40 text-primary hover:bg-primary/10 font-bold"
+            >
+              View 100 Credentials
+            </Button>
+
+            <a href="/Team_Credentials.txt" download="Team_Credentials.txt">
+              <Button type="button" variant="outline" className="border-white/20 text-white/80 hover:bg-white/10 font-medium">
+                Download TXT
+              </Button>
+            </a>
+
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogTrigger asChild>
                 <Button onClick={() => {
@@ -200,82 +250,170 @@ const Users = () => {
                 </form>
               </DialogContent>
             </Dialog>
+
+            <Dialog open={isCredListOpen} onOpenChange={setIsCredListOpen}>
+              <DialogContent className="sm:max-w-3xl max-h-[85vh] h-[85vh] flex flex-col p-0 overflow-hidden z-50">
+                <div className="p-6 pb-4 border-b border-white/10 shrink-0 flex justify-between items-start">
+                  <div>
+                    <DialogTitle className="text-primary font-black text-xl">
+                      Official Team Login Credentials (100 Teams)
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-white/60 mt-1">
+                      Directly from Team_Credentials.xlsx. These accounts are active for login.
+                    </DialogDescription>
+                  </div>
+                  <a href="/Team_Credentials.txt" download="Team_Credentials.txt">
+                    <Button size="sm" variant="secondary" className="text-xs">
+                      Download TXT
+                    </Button>
+                  </a>
+                </div>
+
+                <div className="p-6 overflow-y-auto flex-1 min-h-0 space-y-2 pr-4 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.3)_transparent]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-white/10">
+                        <TableHead className="w-16 text-white/70">#</TableHead>
+                        <TableHead className="text-white/70">Team Name</TableHead>
+                        <TableHead className="text-white/70">Password / Code</TableHead>
+                        <TableHead className="w-24 text-right text-white/70">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {teamCredentialsData.map((item) => (
+                        <TableRow key={item.sno} className="border-white/5 hover:bg-white/5">
+                          <TableCell className="font-mono text-xs text-white/50">{item.sno}</TableCell>
+                          <TableCell className="font-semibold text-white">{item.team}</TableCell>
+                          <TableCell className="font-mono font-bold text-primary">{item.password}</TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-xs text-white/70 hover:text-white"
+                              onClick={() => handleCopy(item.team, item.password)}
+                            >
+                              {copiedTeam === item.team ? '✓ Copied' : 'Copy'}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                <div className="p-4 px-6 border-t border-white/10 bg-neutral-950/95 shrink-0 flex justify-end">
+                  <Button onClick={() => setIsCredListOpen(false)} variant="outline" className="text-sm">
+                    Close
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
-        <div className={'flex justify-start flex-col gap-4 mt-4 items-start w-full'}>
-          {
-            users.map((user: User) => (
-              <Card key={user._id} className={'w-full p-6'}>
-                <CardContent>
-                  <div className={'flex w-full justify-between flex-row'}>
-                    <h1 className={'text-2xl font-black text-white'}>{user.username}</h1>
-                    <div className={'flex justify-start items-center gap-4'}>
-                      <Dialog open={isEditOpen && editingUserId === user._id} onOpenChange={(open) => {
-                        setIsEditOpen(open);
-                        if (!open) setEditingUserId(null);
-                      }}>
-                        <DialogTrigger asChild>
-                          <Button onClick={() => {
-                            setEditError("");
-                            setEditingUserId(user._id);
-                            setUpdateUserDto({username: user.username, balance: user.balance});
-                            setIsEditOpen(true);
-                          }}>
-                            Edit
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px] z-50">
-                          <form onSubmit={(e) => updateUser(user._id, e)}>
-                            <DialogHeader>
-                              <DialogTitle className={'text-primary/60 font-black flex text-xl flex-col'}>
-                                Edit {user.username}
-                              </DialogTitle>
-                            </DialogHeader>
-                            {editError && (
-                              <div className="p-3 my-2 text-sm bg-red-500/20 border border-red-500 text-red-300 rounded">
-                                {editError}
-                              </div>
-                            )}
-                            <div className="grid focus:outline-none focus:ring-0 [&_*]:focus:outline-none [&_*]:focus:ring-0">
-                              <div className="grid gap-3 mt-4">
-                                <Label>Team Name</Label>
-                                <Input onChange={(e) => {
-                                  setUpdateUserDto({...updateUserDto, username: e.target.value});
-                                }} value={updateUserDto.username}/>
-                                <Label>Balance</Label>
-                                <Input onChange={(e) => {
-                                  setUpdateUserDto({...updateUserDto, balance: Number(e.target.value)});
-                                }} value={updateUserDto.balance} type={'number'}/>
-                                <div className="gap-3">
-                                  {
-                                    (user.stocksOwned || []).map((stock) => (
-                                      <Card key={stock.id} className={'p-4 text-white mt-2'}>
-                                        <CardContent>
-                                          <Label>Amount Owned (Valued at ${stock.buy} - Bought {new Date(stock.boughtAt).toLocaleTimeString()})</Label>
-                                          <Input readOnly value={stock.amount} type={'number'} className={'mt-2'}/>
-                                        </CardContent>
-                                      </Card>
-                                    ))
-                                  }
+
+        <div className={'flex justify-start flex-col gap-4 mt-6 items-start w-full'}>
+          {filteredUsers.length === 0 ? (
+            <div className="p-8 text-center text-white/50 w-full border border-dashed border-white/10 rounded-xl">
+              No teams found matching &quot;{searchQuery}&quot;
+            </div>
+          ) : (
+            filteredUsers.map((user: User) => {
+              const cred = credentialsMap.get(user.username.trim().toLowerCase());
+              return (
+                <Card key={user._id} className={'w-full p-6'}>
+                  <CardContent>
+                    <div className={'flex w-full justify-between items-center flex-wrap gap-4'}>
+                      <div className="flex flex-col">
+                        <h1 className={'text-2xl font-black text-white'}>{user.username}</h1>
+                        <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                          {cred ? (
+                            <div className="flex items-center gap-2 text-xs bg-primary/15 border border-primary/40 px-2.5 py-1 rounded-md text-primary font-mono font-bold">
+                              <span>Password: <strong>{cred.password}</strong></span>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(user.username, cred.password)}
+                                className="underline hover:text-white ml-1 text-[11px]"
+                              >
+                                {copiedTeam === user.username ? '✓ Copied' : 'Copy'}
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-white/40 italic">Custom Team</span>
+                          )}
+                          <span className="text-xs text-white/60 font-mono">
+                            Balance: ${(user.balance || 0).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className={'flex justify-start items-center gap-4'}>
+                        <Dialog open={isEditOpen && editingUserId === user._id} onOpenChange={(open) => {
+                          setIsEditOpen(open);
+                          if (!open) setEditingUserId(null);
+                        }}>
+                          <DialogTrigger asChild>
+                            <Button onClick={() => {
+                              setEditError("");
+                              setEditingUserId(user._id);
+                              setUpdateUserDto({username: user.username, balance: user.balance});
+                              setIsEditOpen(true);
+                            }}>
+                              Edit
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px] z-50">
+                            <form onSubmit={(e) => updateUser(user._id, e)}>
+                              <DialogHeader>
+                                <DialogTitle className={'text-primary/60 font-black flex text-xl flex-col'}>
+                                  Edit {user.username}
+                                </DialogTitle>
+                              </DialogHeader>
+                              {editError && (
+                                <div className="p-3 my-2 text-sm bg-red-500/20 border border-red-500 text-red-300 rounded">
+                                  {editError}
+                                </div>
+                              )}
+                              <div className="grid focus:outline-none focus:ring-0 [&_*]:focus:outline-none [&_*]:focus:ring-0">
+                                <div className="grid gap-3 mt-4">
+                                  <Label>Team Name</Label>
+                                  <Input onChange={(e) => {
+                                    setUpdateUserDto({...updateUserDto, username: e.target.value});
+                                  }} value={updateUserDto.username}/>
+                                  <Label>Balance</Label>
+                                  <Input onChange={(e) => {
+                                    setUpdateUserDto({...updateUserDto, balance: Number(e.target.value)});
+                                  }} value={updateUserDto.balance} type={'number'}/>
+                                  <div className="gap-3">
+                                    {
+                                      (user.stocksOwned || []).map((stock) => (
+                                        <Card key={stock.id} className={'p-4 text-white mt-2'}>
+                                          <CardContent>
+                                            <Label>Amount Owned (Valued at ${stock.buy} - Bought {new Date(stock.boughtAt).toLocaleTimeString()})</Label>
+                                            <Input readOnly value={stock.amount} type={'number'} className={'mt-2'}/>
+                                          </CardContent>
+                                        </Card>
+                                      ))
+                                    }
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                            <DialogFooter className="mt-4">
-                              <Button type="button" onClick={() => setIsEditOpen(false)} className={'text-sm'} variant="outline">Cancel</Button>
-                              <Button type="submit" className={'text-sm'} variant="secondary">Confirm</Button>
-                            </DialogFooter>
-                          </form>
-                        </DialogContent>
-                      </Dialog>
-                      <Button onClick={() => deleteUser(user._id)}>
-                        Delete
-                      </Button>
+                              <DialogFooter className="mt-4">
+                                <Button type="button" onClick={() => setIsEditOpen(false)} className={'text-sm'} variant="outline">Cancel</Button>
+                                <Button type="submit" className={'text-sm'} variant="secondary">Confirm</Button>
+                              </DialogFooter>
+                            </form>
+                          </DialogContent>
+                        </Dialog>
+                        <Button onClick={() => deleteUser(user._id)}>
+                          Delete
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          }
+                  </CardContent>
+                </Card>
+              );
+            })
+          )}
         </div>
       </CardContent>
     </Card>
