@@ -410,7 +410,7 @@ const NewsThing = () => {
   const router = useRouter();
   const [stocks, setStocks] = useState<Array<Stock>>([])
   const [news, setNews] = useState<Array<News>>([])
-  const [createNewsDto, setCreateNewsDto] = useState<CreateNewsDto>({ headline: '', desc: '', effects: [], sequence: 0})
+  const [createNewsDto, setCreateNewsDto] = useState<CreateNewsDto>({ headline: '', desc: '', effects: [], sequence: 0, released: false })
   const [updateNewsDto, setUpdateNewsDto] = useState<UpdateNewsDto>({ headline: '', desc: '', sequence: 0})
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -450,6 +450,7 @@ const NewsThing = () => {
         released: false,
         effects: validEffects
       };
+      delete (newsToSend as any).releasedAt;
 
       await axios.post(`${serverUrl}/news`, newsToSend, {
         headers: { Authorization: getAdminAuthHeader() }

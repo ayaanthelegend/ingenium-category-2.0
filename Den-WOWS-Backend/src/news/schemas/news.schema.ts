@@ -18,7 +18,7 @@ export class News {
   @Prop({ required: true })
   effects: StockEffect[];
 
-  @Prop({ default: true })
+  @Prop({ default: false })
   released: boolean;
 
   @Prop()

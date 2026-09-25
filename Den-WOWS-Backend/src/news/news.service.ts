@@ -14,8 +14,9 @@ export class NewsService {
   async createNews(news: CreateNewsDto): Promise<NewsDocument> {
     const newsToCreate = {
       ...news,
-      released: (news as any).released !== undefined ? (news as any).released : false,
+      released: false,
     };
+    delete (newsToCreate as any).releasedAt;
     return this.newsModel.create(newsToCreate);
   }
 
