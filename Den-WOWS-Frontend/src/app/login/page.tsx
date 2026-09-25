@@ -18,7 +18,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
 
   const login = async () => {
-    const cleanUser = username.trim();
+    const cleanUser = username.replace(/[^a-zA-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
     if (!cleanUser || !password) {
       setError(true);
       setErrorMsg("Please enter both username and password");

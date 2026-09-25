@@ -29,8 +29,11 @@ import {
 } from "@/components/schemas";
 import teamCredentialsData from "@/data/team_credentials.json";
 
+const normalizeTeamKey = (name: string) =>
+  (name || '').replace(/[^a-zA-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+
 const credentialsMap = new Map<string, { sno: string; team: string; password: string }>(
-  teamCredentialsData.map((item) => [item.team.trim().toLowerCase(), item])
+  teamCredentialsData.map((item) => [normalizeTeamKey(item.team), item])
 );
 
 const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -318,7 +321,7 @@ const Users = () => {
             </div>
           ) : (
             filteredUsers.map((user: User) => {
-              const cred = credentialsMap.get(user.username.trim().toLowerCase());
+              const cred = credentialsMap.get(normalizeTeamKey(user.username));
               return (
                 <Card key={user._id} className={'w-full p-6'}>
                   <CardContent>
