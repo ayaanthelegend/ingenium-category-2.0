@@ -570,7 +570,7 @@ const NewsThing = () => {
                   New News
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px] z-50">
+              <DialogContent className="sm:max-w-lg z-50">
                 <form onSubmit={createNews}>
                   <DialogHeader>
                     <DialogTitle className={'text-primary/60 font-black flex text-xl flex-col'}>
@@ -594,15 +594,17 @@ const NewsThing = () => {
                   </div>
                   <div className="grid focus:outline-none focus:ring-0 [&_*]:focus:outline-none [&_*]:focus:ring-0">
                     <Label className="mt-4 font-bold">Effects (fill in only the affected stocks, leave the rest as -1)</Label>
-                    <div className="gap-3 mt-4 flex flex-col max-h-48 overflow-y-auto">
+                    <div className="gap-3 mt-4 flex flex-col">
                       {
                         createNewsDto.effects.map((effect) => (
                           <Card key={effect.id} className={'p-4 text-white'}>
-                            <CardContent>
-                              <Label>Effecting Stock</Label>
-                              <Input readOnly className={'mt-2'} value={stocks.find(s => s._id == effect.id)?.name || 'Stock'} type={'text'}/>
-                              <Label className={'mt-4'}>New Price</Label>
-                              <Input className={'mt-2'} onChange={(e) => {
+                            <CardContent className="p-0">
+                              <div className="flex justify-between items-center mb-1">
+                                <Label className="font-semibold text-primary/90">{stocks.find(s => s._id == effect.id)?.name || 'Stock'}</Label>
+                                <span className="text-xs text-white/50">Current: ${stocks.find(s => s._id == effect.id)?.price ?? 0}</span>
+                              </div>
+                              <Label className={'mt-2 block text-xs text-white/70'}>New Price (-1 to leave unchanged)</Label>
+                              <Input className={'mt-1'} onChange={(e) => {
                                 const updatedEffects = createNewsDto.effects.map((ef) =>
                                   ef.id === effect.id ? { ...ef, newBuy: Number(e.target.value) } : ef
                                 )
@@ -614,7 +616,7 @@ const NewsThing = () => {
                       }
                     </div>
                   </div>
-                  <DialogFooter className="mt-4">
+                  <DialogFooter className="mt-6 sticky bottom-0 bg-neutral-950/95 backdrop-blur-md py-3 border-t border-white/10 -mx-6 px-6 -mb-6 flex gap-2 justify-end">
                     <Button type="button" onClick={() => setIsCreateOpen(false)} className={'text-sm'} variant="outline">Cancel</Button>
                     <Button type="submit" className={`text-sm ${createNewsDto.effects.every(s => s.newBuy === -1) && "pointer-events-none opacity-50"}`} variant="secondary">Confirm</Button>
                   </DialogFooter>
@@ -680,7 +682,7 @@ const NewsThing = () => {
                           Edit News
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px] z-50">
+                      <DialogContent className="sm:max-w-lg z-50">
                         <form onSubmit={(e) => updateNews(n._id, e)}>
                           <DialogHeader>
                             <DialogTitle className={'text-primary/60 font-black flex text-xl flex-col'}>
@@ -704,15 +706,17 @@ const NewsThing = () => {
                           </div>
                           <div className="grid focus:outline-none focus:ring-0 [&_*]:focus:outline-none [&_*]:focus:ring-0">
                             <Label className="mt-4 font-bold">Effects (fill in only the affected stocks, leave the rest as -1)</Label>
-                            <div className="gap-3 mt-4 flex flex-col max-h-48 overflow-y-auto">
+                            <div className="gap-3 mt-4 flex flex-col">
                               {
                                 (updateNewsDto.effects || []).map((effect) => (
                                   <Card key={effect.id} className={'p-4 text-white'}>
-                                    <CardContent>
-                                      <Label>Effecting Stock</Label>
-                                      <Input readOnly className={'mt-2'} value={stocks.find(s => s._id == effect.id)?.name || 'Stock'} type={'text'}/>
-                                      <Label className={'mt-4'}>New Price</Label>
-                                      <Input className={'mt-2'} onChange={(e) => {
+                                    <CardContent className="p-0">
+                                      <div className="flex justify-between items-center mb-1">
+                                        <Label className="font-semibold text-primary/90">{stocks.find(s => s._id == effect.id)?.name || 'Stock'}</Label>
+                                        <span className="text-xs text-white/50">Current: ${stocks.find(s => s._id == effect.id)?.price ?? 0}</span>
+                                      </div>
+                                      <Label className={'mt-2 block text-xs text-white/70'}>New Price (-1 to leave unchanged)</Label>
+                                      <Input className={'mt-1'} onChange={(e) => {
                                         const updatedEffects = (updateNewsDto.effects || []).map((ef) =>
                                           ef.id === effect.id ? { ...ef, newBuy: Number(e.target.value) } : ef
                                         );
@@ -724,7 +728,7 @@ const NewsThing = () => {
                               }
                             </div>
                           </div>
-                          <DialogFooter className="mt-4">
+                          <DialogFooter className="mt-6 sticky bottom-0 bg-neutral-950/95 backdrop-blur-md py-3 border-t border-white/10 -mx-6 px-6 -mb-6 flex gap-2 justify-end">
                             <Button type="button" onClick={() => setIsEditOpen(false)} className={'text-sm'} variant="outline">Cancel</Button>
                             <Button type="submit" className={'text-sm'} variant="secondary">Confirm</Button>
                           </DialogFooter>
