@@ -209,6 +209,11 @@ const Users = () => {
               View 100 Credentials
             </Button>
 
+            <a href="/Team_Credentials.xlsx" download="Team_Credentials.xlsx">
+              <Button type="button" variant="outline" className="border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 font-medium">
+                Download Excel (.xlsx)
+              </Button>
+            </a>
             <a href="/Team_Credentials.txt" download="Team_Credentials.txt">
               <Button type="button" variant="outline" className="border-white/20 text-white/80 hover:bg-white/10 font-medium">
                 Download TXT
@@ -265,11 +270,18 @@ const Users = () => {
                       Directly from Team_Credentials.xlsx. These accounts are active for login.
                     </DialogDescription>
                   </div>
-                  <a href="/Team_Credentials.txt" download="Team_Credentials.txt">
-                    <Button size="sm" variant="secondary" className="text-xs">
-                      Download TXT
-                    </Button>
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <a href="/Team_Credentials.xlsx" download="Team_Credentials.xlsx">
+                      <Button size="sm" variant="outline" className="text-xs border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10">
+                        Download Excel (.xlsx)
+                      </Button>
+                    </a>
+                    <a href="/Team_Credentials.txt" download="Team_Credentials.txt">
+                      <Button size="sm" variant="secondary" className="text-xs">
+                        Download TXT
+                      </Button>
+                    </a>
+                  </div>
                 </div>
 
                 <div className="p-6 overflow-y-auto flex-1 min-h-0 space-y-2 pr-4 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.3)_transparent]">
