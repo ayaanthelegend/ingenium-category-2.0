@@ -4,6 +4,7 @@ import {Button} from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -418,33 +419,43 @@ const NewsThing = () => {
   const [editingNewsId, setEditingNewsId] = useState<string | null>(null);
   const [editError, setEditError] = useState("");
 
-  const initiaiseStockEffects = (type: 'create' | 'update'): Array<StockEffect> => {
-    return stocks.map((stock) => ({ id: stock._id, newBuy: type == 'create' ? -1 : stock.price}))
-  }
+  const initiaiseStockEffects = (stockList: Stock[], type: 'create' | 'update'): Array<StockEffect> => {
+    return (stockList || []).map((stock) => ({ id: stock._id, newBuy: type === 'create' ? -1 : stock.price }));
+  };
 
-  const getStocks = async () => {
+  const getStocks = async (): Promise<Stock[]> => {
     try {
       const resp = await axios.get(`${serverUrl}/stocks/admin`, {
         headers: { Authorization: getAdminAuthHeader() }
       });
-      setStocks(resp.data || []);
+      const data: Stock[] = resp.data || [];
+      setStocks(data);
+      return data;
     } catch (e) {
       console.error("Failed to fetch stocks", e);
       handleAdminAuthError(e, router);
+      return [];
     }
-  }
+  };
 
   const createNews = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setCreateError("");
     try {
-      const newsToSend = { ...createNewsDto };
-      newsToSend.effects = newsToSend.effects.filter(ev => ev.newBuy !== -1);
+      const validEffects = (createNewsDto.effects || []).filter(
+        ev => typeof ev.newBuy === 'number' && !isNaN(ev.newBuy) && ev.newBuy !== -1
+      );
+      const newsToSend = {
+        ...createNewsDto,
+        released: false,
+        effects: validEffects
+      };
 
       await axios.post(`${serverUrl}/news`, newsToSend, {
         headers: { Authorization: getAdminAuthHeader() }
       });
       setIsCreateOpen(false);
+      setCreateNewsDto({ headline: '', desc: '', effects: [], sequence: 0, released: false });
       await getNews();
       await getStocks();
     } catch (err: unknown) {
@@ -455,13 +466,20 @@ const NewsThing = () => {
         setCreateError("Failed to create news");
       }
     }
-  }
+  };
 
   const updateNews = async (id: string, e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setEditError("");
     try {
-      await axios.patch(`${serverUrl}/news/${id}`, updateNewsDto, {
+      const validEffects = (updateNewsDto.effects || []).filter(
+        ev => typeof ev.newBuy === 'number' && !isNaN(ev.newBuy) && ev.newBuy !== -1
+      );
+      const newsToUpdate = {
+        ...updateNewsDto,
+        effects: validEffects
+      };
+      await axios.patch(`${serverUrl}/news/${id}`, newsToUpdate, {
         headers: { Authorization: getAdminAuthHeader() }
       });
       setIsEditOpen(false);
@@ -476,7 +494,7 @@ const NewsThing = () => {
         setEditError("Failed to update news");
       }
     }
-  }
+  };
 
   const deleteNews = async (id: string) => {
     try {
@@ -564,62 +582,137 @@ const NewsThing = () => {
               <DialogTrigger asChild>
                 <Button onClick={async () => {
                   setCreateError("");
-                  await getStocks();
-                  setCreateNewsDto({ headline: '', desc: '', effects: initiaiseStockEffects('create'), sequence: 0});
+                  const fetchedStocks = await getStocks();
+                  const currentStocks = (fetchedStocks && fetchedStocks.length > 0) ? fetchedStocks : stocks;
+                  setCreateNewsDto({
+                    headline: '',
+                    desc: '',
+                    effects: initiaiseStockEffects(currentStocks, 'create'),
+                    sequence: 0,
+                    released: false
+                  });
                 }}>
                   New News
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-lg z-50">
-                <form onSubmit={createNews}>
-                  <DialogHeader>
-                    <DialogTitle className={'text-primary/60 font-black flex text-xl flex-col'}>
-                      Create News
-                    </DialogTitle>
-                  </DialogHeader>
-                  {createError && (
-                    <div className="p-3 my-2 text-sm bg-red-500/20 border border-red-500 text-red-300 rounded">
-                      {createError}
+              <DialogContent className="sm:max-w-xl max-h-[85vh] h-[85vh] flex flex-col p-0 overflow-hidden z-50">
+                <form onSubmit={createNews} className="flex flex-col h-full overflow-hidden">
+                  <div className="p-6 pb-4 border-b border-white/10 shrink-0">
+                    <DialogHeader>
+                      <DialogTitle className="text-primary font-black text-xl">
+                        Create News
+                      </DialogTitle>
+                      <DialogDescription className="text-xs text-white/60">
+                        News is queued by default with released=false until manually released.
+                      </DialogDescription>
+                    </DialogHeader>
+                    {createError && (
+                      <div className="p-3 mt-3 text-sm bg-red-500/20 border border-red-500 text-red-300 rounded">
+                        {createError}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-6 overflow-y-auto flex-1 min-h-0 space-y-5 pr-4 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.3)_transparent]">
+                    <div className="space-y-3">
+                      <div>
+                        <Label className="text-sm font-semibold text-white">News Headline</Label>
+                        <Input
+                          className="mt-1"
+                          onChange={(e) => setCreateNewsDto({...createNewsDto, headline: e.target.value})}
+                          value={createNewsDto.headline}
+                          placeholder="Headline title"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold text-white">News Description</Label>
+                        <Input
+                          className="mt-1"
+                          onChange={(e) => setCreateNewsDto({...createNewsDto, desc: e.target.value})}
+                          value={createNewsDto.desc}
+                          placeholder="Description"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold text-white">News Sequence</Label>
+                        <Input
+                          className="mt-1"
+                          step="any"
+                          type="number"
+                          onChange={(e) => setCreateNewsDto({...createNewsDto, sequence: Number(e.target.value)})}
+                          value={createNewsDto.sequence}
+                          placeholder="Sequence number"
+                          required
+                        />
+                      </div>
                     </div>
-                  )}
-                  <div className="grid focus:outline-none focus:ring-0 [&_*]:focus:outline-none [&_*]:focus:ring-0">
-                    <div className="grid gap-3 mt-4">
-                      <Label>News Headline</Label>
-                      <Input onChange={(e) => setCreateNewsDto({...createNewsDto, headline: e.target.value})} value={createNewsDto.headline} placeholder={'Name'}/>
-                      <Label>News Description</Label>
-                      <Input onChange={(e) => setCreateNewsDto({...createNewsDto, desc: e.target.value})} value={createNewsDto.desc} placeholder={'Name'}/>
-                      <Label>News Sequence</Label>
-                      <Input step="any" onChange={(e) => setCreateNewsDto({...createNewsDto, sequence: Number(e.target.value)})} value={createNewsDto.sequence} placeholder={'Sequence'} type={'number'}/>
+
+                    <div className="pt-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="font-bold text-sm text-white">Stock Price Effects</Label>
+                        <span className="text-xs text-white/50">Leave -1 for no price change</span>
+                      </div>
+
+                      {stocks.length === 0 ? (
+                        <div className="p-4 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-300 text-xs">
+                          No stocks found in the database. Please create stocks in the Stocks tab first.
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {stocks.map((stock) => {
+                            const currentEffect = (createNewsDto.effects || []).find((ef) => ef.id === stock._id);
+                            const effectVal = currentEffect !== undefined ? currentEffect.newBuy : -1;
+                            return (
+                              <Card key={stock._id} className="p-4 bg-neutral-900/90 border border-white/10 text-white">
+                                <CardContent className="p-0">
+                                  <div className="flex justify-between items-center mb-1">
+                                    <Label className="font-semibold text-primary/90">
+                                      {stock.name}
+                                    </Label>
+                                    <span className="text-xs text-white/60">
+                                      Current: <strong className="text-green-400 font-mono">${stock.price ?? 0}</strong>
+                                    </span>
+                                  </div>
+                                  <Label className="mt-2 block text-xs text-white/70">New Price (-1 to leave unchanged)</Label>
+                                  <Input
+                                    className="mt-1"
+                                    type="number"
+                                    step="any"
+                                    value={effectVal}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const existing = [...(createNewsDto.effects || [])];
+                                      const idx = existing.findIndex((ef) => ef.id === stock._id);
+                                      if (idx >= 0) {
+                                        existing[idx] = { id: stock._id, newBuy: val };
+                                      } else {
+                                        existing.push({ id: stock._id, newBuy: val });
+                                      }
+                                      setCreateNewsDto({ ...createNewsDto, effects: existing });
+                                    }}
+                                  />
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="grid focus:outline-none focus:ring-0 [&_*]:focus:outline-none [&_*]:focus:ring-0">
-                    <Label className="mt-4 font-bold">Effects (fill in only the affected stocks, leave the rest as -1)</Label>
-                    <div className="gap-3 mt-4 flex flex-col">
-                      {
-                        createNewsDto.effects.map((effect) => (
-                          <Card key={effect.id} className={'p-4 text-white'}>
-                            <CardContent className="p-0">
-                              <div className="flex justify-between items-center mb-1">
-                                <Label className="font-semibold text-primary/90">{stocks.find(s => s._id == effect.id)?.name || 'Stock'}</Label>
-                                <span className="text-xs text-white/50">Current: ${stocks.find(s => s._id == effect.id)?.price ?? 0}</span>
-                              </div>
-                              <Label className={'mt-2 block text-xs text-white/70'}>New Price (-1 to leave unchanged)</Label>
-                              <Input className={'mt-1'} onChange={(e) => {
-                                const updatedEffects = createNewsDto.effects.map((ef) =>
-                                  ef.id === effect.id ? { ...ef, newBuy: Number(e.target.value) } : ef
-                                )
-                                setCreateNewsDto({ ...createNewsDto, effects: updatedEffects })
-                              }} value={effect.newBuy} type={'number'}/>
-                            </CardContent>
-                          </Card>
-                        ))
-                      }
+
+                  <div className="p-4 px-6 border-t border-white/10 bg-neutral-950/95 shrink-0 flex justify-between items-center">
+                    <span className="text-xs text-white/50">Status: Queued (Unreleased)</span>
+                    <div className="flex gap-2">
+                      <Button type="button" onClick={() => setIsCreateOpen(false)} className="text-sm" variant="outline">
+                        Cancel
+                      </Button>
+                      <Button type="submit" className="text-sm font-semibold" variant="secondary">
+                        Confirm (Save to Queue)
+                      </Button>
                     </div>
                   </div>
-                  <DialogFooter className="mt-6 sticky bottom-0 bg-neutral-950/95 backdrop-blur-md py-3 border-t border-white/10 -mx-6 px-6 -mb-6 flex gap-2 justify-end">
-                    <Button type="button" onClick={() => setIsCreateOpen(false)} className={'text-sm'} variant="outline">Cancel</Button>
-                    <Button type="submit" className={`text-sm ${createNewsDto.effects.every(s => s.newBuy === -1) && "pointer-events-none opacity-50"}`} variant="secondary">Confirm</Button>
-                  </DialogFooter>
                 </form>
               </DialogContent>
             </Dialog>
@@ -663,11 +756,13 @@ const NewsThing = () => {
                       if (!open) setEditingNewsId(null);
                     }}>
                       <DialogTrigger asChild>
-                        <Button onClick={() => {
+                        <Button onClick={async () => {
                           setEditError("");
                           setEditingNewsId(n._id);
+                          const fetchedStocks = await getStocks();
+                          const currentStocks = (fetchedStocks && fetchedStocks.length > 0) ? fetchedStocks : stocks;
                           const existingEffectsMap = new Map((n.effects || []).map(e => [e.id, e.newBuy]));
-                          const initialEffects = stocks.map(stock => ({
+                          const initialEffects = currentStocks.map(stock => ({
                             id: stock._id,
                             newBuy: existingEffectsMap.has(stock._id) ? existingEffectsMap.get(stock._id)! : -1
                           }));
@@ -682,56 +777,121 @@ const NewsThing = () => {
                           Edit News
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-lg z-50">
-                        <form onSubmit={(e) => updateNews(n._id, e)}>
-                          <DialogHeader>
-                            <DialogTitle className={'text-primary/60 font-black flex text-xl flex-col'}>
-                              Edit Headline #{n.sequence}
-                            </DialogTitle>
-                          </DialogHeader>
-                          {editError && (
-                            <div className="p-3 my-2 text-sm bg-red-500/20 border border-red-500 text-red-300 rounded">
-                              {editError}
+                      <DialogContent className="sm:max-w-xl max-h-[85vh] h-[85vh] flex flex-col p-0 overflow-hidden z-50">
+                        <form onSubmit={(e) => updateNews(n._id, e)} className="flex flex-col h-full overflow-hidden">
+                          <div className="p-6 pb-4 border-b border-white/10 shrink-0">
+                            <DialogHeader>
+                              <DialogTitle className="text-primary font-black text-xl">
+                                Edit Headline #{n.sequence}
+                              </DialogTitle>
+                              <DialogDescription className="text-xs text-white/60">
+                                Update news headline, description, sequence, or stock price changes.
+                              </DialogDescription>
+                            </DialogHeader>
+                            {editError && (
+                              <div className="p-3 mt-3 text-sm bg-red-500/20 border border-red-500 text-red-300 rounded">
+                                {editError}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="p-6 overflow-y-auto flex-1 min-h-0 space-y-5 pr-4 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.3)_transparent]">
+                            <div className="space-y-3">
+                              <div>
+                                <Label className="text-sm font-semibold text-white">News Headline</Label>
+                                <Input
+                                  className="mt-1"
+                                  onChange={(e) => setUpdateNewsDto({...updateNewsDto, headline: e.target.value})}
+                                  value={updateNewsDto.headline}
+                                  placeholder="Headline title"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-sm font-semibold text-white">News Description</Label>
+                                <Input
+                                  className="mt-1"
+                                  onChange={(e) => setUpdateNewsDto({...updateNewsDto, desc: e.target.value})}
+                                  value={updateNewsDto.desc}
+                                  placeholder="Description"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-sm font-semibold text-white">News Sequence</Label>
+                                <Input
+                                  className="mt-1"
+                                  step="any"
+                                  type="number"
+                                  onChange={(e) => setUpdateNewsDto({...updateNewsDto, sequence: Number(e.target.value)})}
+                                  value={updateNewsDto.sequence}
+                                  placeholder="Sequence number"
+                                  required
+                                />
+                              </div>
                             </div>
-                          )}
-                          <div className="grid focus:outline-none focus:ring-0 [&_*]:focus:outline-none [&_*]:focus:ring-0">
-                            <div className="grid gap-3 mt-4">
-                              <Label>News Headline</Label>
-                              <Input onChange={(e) => setUpdateNewsDto({...updateNewsDto, headline: e.target.value})} value={updateNewsDto.headline} placeholder={'Name'}/>
-                              <Label>News Description</Label>
-                              <Input onChange={(e) => setUpdateNewsDto({...updateNewsDto, desc: e.target.value})} value={updateNewsDto.desc} placeholder={'Name'}/>
-                              <Label>News Sequence</Label>
-                              <Input step="any" onChange={(e) => setUpdateNewsDto({...updateNewsDto, sequence: Number(e.target.value)})} value={updateNewsDto.sequence} placeholder={'Sequence'} type={'number'}/>
+
+                            <div className="pt-2">
+                              <div className="flex items-center justify-between mb-2">
+                                <Label className="font-bold text-sm text-white">Stock Price Effects</Label>
+                                <span className="text-xs text-white/50">Leave -1 for no price change</span>
+                              </div>
+
+                              {stocks.length === 0 ? (
+                                <div className="p-4 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-300 text-xs">
+                                  No stocks found in the database.
+                                </div>
+                              ) : (
+                                <div className="space-y-3">
+                                  {stocks.map((stock) => {
+                                    const currentEffect = (updateNewsDto.effects || []).find((ef) => ef.id === stock._id);
+                                    const effectVal = currentEffect !== undefined ? currentEffect.newBuy : -1;
+                                    return (
+                                      <Card key={stock._id} className="p-4 bg-neutral-900/90 border border-white/10 text-white">
+                                        <CardContent className="p-0">
+                                          <div className="flex justify-between items-center mb-1">
+                                            <Label className="font-semibold text-primary/90">
+                                              {stock.name}
+                                            </Label>
+                                            <span className="text-xs text-white/60">
+                                              Current: <strong className="text-green-400 font-mono">${stock.price ?? 0}</strong>
+                                            </span>
+                                          </div>
+                                          <Label className="mt-2 block text-xs text-white/70">New Price (-1 to leave unchanged)</Label>
+                                          <Input
+                                            className="mt-1"
+                                            type="number"
+                                            step="any"
+                                            value={effectVal}
+                                            onChange={(e) => {
+                                              const val = Number(e.target.value);
+                                              const existing = [...(updateNewsDto.effects || [])];
+                                              const idx = existing.findIndex((ef) => ef.id === stock._id);
+                                              if (idx >= 0) {
+                                                existing[idx] = { id: stock._id, newBuy: val };
+                                              } else {
+                                                existing.push({ id: stock._id, newBuy: val });
+                                              }
+                                              setUpdateNewsDto({ ...updateNewsDto, effects: existing });
+                                            }}
+                                          />
+                                        </CardContent>
+                                      </Card>
+                                    );
+                                  })}
+                                </div>
+                              )}
                             </div>
                           </div>
-                          <div className="grid focus:outline-none focus:ring-0 [&_*]:focus:outline-none [&_*]:focus:ring-0">
-                            <Label className="mt-4 font-bold">Effects (fill in only the affected stocks, leave the rest as -1)</Label>
-                            <div className="gap-3 mt-4 flex flex-col">
-                              {
-                                (updateNewsDto.effects || []).map((effect) => (
-                                  <Card key={effect.id} className={'p-4 text-white'}>
-                                    <CardContent className="p-0">
-                                      <div className="flex justify-between items-center mb-1">
-                                        <Label className="font-semibold text-primary/90">{stocks.find(s => s._id == effect.id)?.name || 'Stock'}</Label>
-                                        <span className="text-xs text-white/50">Current: ${stocks.find(s => s._id == effect.id)?.price ?? 0}</span>
-                                      </div>
-                                      <Label className={'mt-2 block text-xs text-white/70'}>New Price (-1 to leave unchanged)</Label>
-                                      <Input className={'mt-1'} onChange={(e) => {
-                                        const updatedEffects = (updateNewsDto.effects || []).map((ef) =>
-                                          ef.id === effect.id ? { ...ef, newBuy: Number(e.target.value) } : ef
-                                        );
-                                        setUpdateNewsDto({ ...updateNewsDto, effects: updatedEffects });
-                                      }} value={effect.newBuy} type={'number'}/>
-                                    </CardContent>
-                                  </Card>
-                                ))
-                              }
-                            </div>
+
+                          <div className="p-4 px-6 border-t border-white/10 bg-neutral-950/95 shrink-0 flex justify-end gap-2">
+                            <Button type="button" onClick={() => setIsEditOpen(false)} className="text-sm" variant="outline">
+                              Cancel
+                            </Button>
+                            <Button type="submit" className="text-sm font-semibold" variant="secondary">
+                              Confirm
+                            </Button>
                           </div>
-                          <DialogFooter className="mt-6 sticky bottom-0 bg-neutral-950/95 backdrop-blur-md py-3 border-t border-white/10 -mx-6 px-6 -mb-6 flex gap-2 justify-end">
-                            <Button type="button" onClick={() => setIsEditOpen(false)} className={'text-sm'} variant="outline">Cancel</Button>
-                            <Button type="submit" className={'text-sm'} variant="secondary">Confirm</Button>
-                          </DialogFooter>
                         </form>
                       </DialogContent>
                     </Dialog>
