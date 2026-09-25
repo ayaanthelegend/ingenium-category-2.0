@@ -22,6 +22,12 @@ export class FlagsController {
     return this.flagsService.pause();
   }
 
+  @Post('/reset')
+  @UseGuards(AdminKeyGuard)
+  async resetGame(@Body() body?: { durationSeconds?: number }) {
+    return this.flagsService.reset(body?.durationSeconds);
+  }
+
   @Post('/set-interval')
   @UseGuards(AdminKeyGuard)
   async setInterval(@Body() body: { seconds: number }) {

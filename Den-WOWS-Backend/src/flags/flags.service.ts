@@ -103,6 +103,29 @@ export class FlagsService {
     );
   }
 
+  async reset(durationSeconds?: number) {
+    const existingFlag = await this.flagModel.findOne({ key: 'global' }).exec();
+    let newDuration = existingFlag?.roundDurationSeconds || 0;
+
+    if (durationSeconds !== undefined && durationSeconds !== null && !isNaN(Number(durationSeconds))) {
+      newDuration = Number(durationSeconds);
+    }
+
+    const updateData: any = {
+      startedAt: Date.now(),
+      accumulatedSeconds: 0,
+      roundDurationSeconds: newDuration,
+      value: false,
+      isAutoPausing: false,
+    };
+
+    return this.flagModel.findOneAndUpdate(
+      { key: 'global' },
+      updateData,
+      { upsert: true, new: true },
+    );
+  }
+
   async getFullFlag(key: string): Promise<any> {
     let flag = await this.flagModel.findOne({ key }).exec();
     if (flag && !flag.startedAt) {

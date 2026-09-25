@@ -1127,13 +1127,59 @@ const BigBlackSwitch = () => {
     try {
       const durationSeconds = durationMinutes !== "" && !isNaN(Number(durationMinutes))
         ? Math.round(Number(durationMinutes) * 60)
-        : 0;
+        : (flag?.roundDurationSeconds || 0);
       await axios.post(`${serverUrl}/flags/start`, { durationSeconds }, {
         headers: { Authorization: getAdminAuthHeader() }
       });
       await getFlag();
     } catch (e) {
       console.error("Failed to start flag", e);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const resetFlag = async () => {
+    setActionLoading(true);
+    try {
+      const durationSeconds = durationMinutes !== "" && !isNaN(Number(durationMinutes))
+        ? Math.max(0, Math.round(Number(durationMinutes) * 60))
+        : (flag?.roundDurationSeconds || 0);
+
+      try {
+        await axios.post(`${serverUrl}/flags/reset`, { durationSeconds }, {
+          headers: { Authorization: getAdminAuthHeader() }
+        });
+      } catch (err: any) {
+        if (err?.response?.status === 404) {
+          // Fallback sequence while new backend endpoint finishes deploying
+          await axios.post(`${serverUrl}/flags/start`, { durationSeconds: 1 }, {
+            headers: { Authorization: getAdminAuthHeader() }
+          });
+          await axios.post(`${serverUrl}/flags/pause`, {}, {
+            headers: { Authorization: getAdminAuthHeader() }
+          });
+          await axios.post(`${serverUrl}/flags/start`, { durationSeconds: 1 }, {
+            headers: { Authorization: getAdminAuthHeader() }
+          });
+          await axios.post(`${serverUrl}/flags/pause`, {}, {
+            headers: { Authorization: getAdminAuthHeader() }
+          });
+          if (durationSeconds > 0) {
+            await axios.post(`${serverUrl}/flags/start`, { durationSeconds }, {
+              headers: { Authorization: getAdminAuthHeader() }
+            });
+            await axios.post(`${serverUrl}/flags/pause`, {}, {
+              headers: { Authorization: getAdminAuthHeader() }
+            });
+          }
+        } else {
+          throw err;
+        }
+      }
+      await getFlag();
+    } catch (e) {
+      console.error("Failed to reset flag", e);
     } finally {
       setActionLoading(false);
     }
@@ -1241,6 +1287,15 @@ const BigBlackSwitch = () => {
           </Button>
           <Button disabled={actionLoading || !flag.value} onClick={pauseFlag}>
             Event paused
+          </Button>
+          <Button
+            type="button"
+            disabled={actionLoading}
+            onClick={resetFlag}
+            variant="destructive"
+            className="bg-red-600/80 hover:bg-red-600 text-white font-bold"
+          >
+            Reset
           </Button>
 
         </div>
