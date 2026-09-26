@@ -48,10 +48,12 @@ export class FlagsService {
 
   async start(durationSeconds?: number) {
     const existingFlag = await this.flagModel.findOne({ key: 'global' }).exec();
-    let newDuration = existingFlag?.roundDurationSeconds || 0;
+    let newDuration = existingFlag?.roundDurationSeconds || 300;
 
-    if (durationSeconds !== undefined && durationSeconds !== null && !isNaN(Number(durationSeconds))) {
+    if (durationSeconds !== undefined && durationSeconds !== null && !isNaN(Number(durationSeconds)) && Number(durationSeconds) > 0) {
       newDuration = Number(durationSeconds);
+    } else if (newDuration < 60) {
+      newDuration = 300;
     }
 
     const currentElapsed = existingFlag ? this.getElapsedSeconds(existingFlag) : 0;
@@ -105,10 +107,12 @@ export class FlagsService {
 
   async reset(durationSeconds?: number) {
     const existingFlag = await this.flagModel.findOne({ key: 'global' }).exec();
-    let newDuration = existingFlag?.roundDurationSeconds || 0;
+    let newDuration = existingFlag?.roundDurationSeconds || 300;
 
-    if (durationSeconds !== undefined && durationSeconds !== null && !isNaN(Number(durationSeconds))) {
+    if (durationSeconds !== undefined && durationSeconds !== null && !isNaN(Number(durationSeconds)) && Number(durationSeconds) > 0) {
       newDuration = Number(durationSeconds);
+    } else if (newDuration < 60) {
+      newDuration = 300;
     }
 
     const updateData: any = {
@@ -135,15 +139,21 @@ export class FlagsService {
     if (!flag) {
       flag = new this.flagModel({
         key,
-        value: true,
+        value: false,
         startedAt: Date.now(),
         accumulatedSeconds: 0,
-        roundDurationSeconds: 0,
+        roundDurationSeconds: 300,
       });
       await flag.save();
     }
 
-    const duration = flag.roundDurationSeconds || 0;
+    let duration = flag.roundDurationSeconds || 0;
+    // Heal corrupt tiny duration (e.g. 1s from legacy fallbacks)
+    if (duration > 0 && duration < 60) {
+      duration = 300;
+      flag.roundDurationSeconds = 300;
+      await flag.save();
+    }
 
     // Self-heal corrupt accumulatedSeconds if found in DB
     if (duration > 0 && (flag.accumulatedSeconds || 0) > duration) {

@@ -14,7 +14,7 @@ import {Input} from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import axios from "axios";
-import {useEffect, useState} from "react";
+import {useEffect, useState, useRef} from "react";
 import {
   CreateNewsDto,
   CreateStockDto,
@@ -1093,15 +1093,23 @@ const BigBlackSwitch = () => {
   const [durationMinutes, setDurationMinutes] = useState<number | string>("");
   const [actionLoading, setActionLoading] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const isEditingRef = useRef(false);
 
   const getFlag = async () => {
     try {
       const resp = await axios.get(`${serverUrl}/flags/global`, {
-        headers: { Authorization: getAdminAuthHeader() }
+        headers: { Authorization: getAdminAuthHeader() },
+        timeout: 8000,
       });
       setFlag(resp.data);
-      if (resp.data && resp.data.roundDurationSeconds !== undefined) {
-        setDurationMinutes(resp.data.roundDurationSeconds ? resp.data.roundDurationSeconds / 60 : "");
+      if (!isEditingRef.current && resp.data && resp.data.roundDurationSeconds !== undefined) {
+        const secs = resp.data.roundDurationSeconds || 0;
+        if (secs <= 0) {
+          setDurationMinutes("");
+        } else {
+          const mins = secs / 60;
+          setDurationMinutes(mins >= 1 ? (Number.isInteger(mins) ? mins : Number(mins.toFixed(1))) : 5);
+        }
       }
     } catch (e) {
       console.error("Failed to fetch flag", e);
@@ -1109,10 +1117,12 @@ const BigBlackSwitch = () => {
   };
 
   const pauseFlag = async () => {
+    if (actionLoading) return;
     setActionLoading(true);
     try {
       await axios.post(`${serverUrl}/flags/pause`, {}, {
-        headers: { Authorization: getAdminAuthHeader() }
+        headers: { Authorization: getAdminAuthHeader() },
+        timeout: 10000,
       });
       await getFlag();
     } catch (e) {
@@ -1123,14 +1133,21 @@ const BigBlackSwitch = () => {
   };
 
   const resumeFlag = async () => {
+    if (actionLoading) return;
     setActionLoading(true);
     try {
-      const durationSeconds = durationMinutes !== "" && !isNaN(Number(durationMinutes))
-        ? Math.round(Number(durationMinutes) * 60)
-        : (flag?.roundDurationSeconds || 0);
+      let durationSeconds = 300;
+      if (durationMinutes !== "" && !isNaN(Number(durationMinutes)) && Number(durationMinutes) > 0) {
+        durationSeconds = Math.round(Number(durationMinutes) * 60);
+      } else if (flag?.roundDurationSeconds && flag.roundDurationSeconds >= 60) {
+        durationSeconds = flag.roundDurationSeconds;
+      }
+
       await axios.post(`${serverUrl}/flags/start`, { durationSeconds }, {
-        headers: { Authorization: getAdminAuthHeader() }
+        headers: { Authorization: getAdminAuthHeader() },
+        timeout: 10000,
       });
+      setDurationMinutes(Math.round(durationSeconds / 60));
       await getFlag();
     } catch (e) {
       console.error("Failed to start flag", e);
@@ -1140,43 +1157,21 @@ const BigBlackSwitch = () => {
   };
 
   const resetFlag = async () => {
+    if (actionLoading) return;
     setActionLoading(true);
     try {
-      const durationSeconds = durationMinutes !== "" && !isNaN(Number(durationMinutes))
-        ? Math.max(0, Math.round(Number(durationMinutes) * 60))
-        : (flag?.roundDurationSeconds || 0);
-
-      try {
-        await axios.post(`${serverUrl}/flags/reset`, { durationSeconds }, {
-          headers: { Authorization: getAdminAuthHeader() }
-        });
-      } catch (err: any) {
-        if (err?.response?.status === 404) {
-          // Fallback sequence while new backend endpoint finishes deploying
-          await axios.post(`${serverUrl}/flags/start`, { durationSeconds: 1 }, {
-            headers: { Authorization: getAdminAuthHeader() }
-          });
-          await axios.post(`${serverUrl}/flags/pause`, {}, {
-            headers: { Authorization: getAdminAuthHeader() }
-          });
-          await axios.post(`${serverUrl}/flags/start`, { durationSeconds: 1 }, {
-            headers: { Authorization: getAdminAuthHeader() }
-          });
-          await axios.post(`${serverUrl}/flags/pause`, {}, {
-            headers: { Authorization: getAdminAuthHeader() }
-          });
-          if (durationSeconds > 0) {
-            await axios.post(`${serverUrl}/flags/start`, { durationSeconds }, {
-              headers: { Authorization: getAdminAuthHeader() }
-            });
-            await axios.post(`${serverUrl}/flags/pause`, {}, {
-              headers: { Authorization: getAdminAuthHeader() }
-            });
-          }
-        } else {
-          throw err;
-        }
+      let durationSeconds = 300;
+      if (durationMinutes !== "" && !isNaN(Number(durationMinutes)) && Number(durationMinutes) > 0) {
+        durationSeconds = Math.round(Number(durationMinutes) * 60);
+      } else if (flag?.roundDurationSeconds && flag.roundDurationSeconds >= 60) {
+        durationSeconds = flag.roundDurationSeconds;
       }
+
+      await axios.post(`${serverUrl}/flags/reset`, { durationSeconds }, {
+        headers: { Authorization: getAdminAuthHeader() },
+        timeout: 10000,
+      });
+      setDurationMinutes(Math.round(durationSeconds / 60));
       await getFlag();
     } catch (e) {
       console.error("Failed to reset flag", e);
@@ -1215,9 +1210,9 @@ const BigBlackSwitch = () => {
     };
   }, []);
 
-  const durationSeconds = durationMinutes !== "" && !isNaN(Number(durationMinutes))
-    ? Math.max(0, Math.round(Number(durationMinutes) * 60))
-    : (flag?.roundDurationSeconds || 0);
+  const durationSeconds = durationMinutes !== "" && !isNaN(Number(durationMinutes)) && Number(durationMinutes) > 0
+    ? Math.round(Number(durationMinutes) * 60)
+    : (flag?.roundDurationSeconds && flag.roundDurationSeconds >= 60 ? flag.roundDurationSeconds : 300);
 
   const calculateElapsed = () => {
     if (!flag) return 0;
@@ -1265,7 +1260,7 @@ const BigBlackSwitch = () => {
             <span className="text-xl font-bold text-primary">
               {Math.floor(remainingSeconds / 60)}m {remainingSeconds % 60}s
             </span>
-            <span className="text-xs text-white/40 mt-1">Duration: {durationSeconds ? `${durationSeconds / 60} min` : 'Unlimited'}</span>
+            <span className="text-xs text-white/40 mt-1">Duration: {Math.round(durationSeconds / 60)} min</span>
           </div>
         </div>
 
@@ -1275,18 +1270,29 @@ const BigBlackSwitch = () => {
             <Label className="text-white">Round Duration (minutes)</Label>
             <Input
               type="number"
-              placeholder="Minutes (e.g. 15)"
+              placeholder="Minutes (e.g. 5)"
               value={durationMinutes}
+              onFocus={() => { isEditingRef.current = true; }}
+              onBlur={() => { isEditingRef.current = false; }}
               onChange={(e) => setDurationMinutes(e.target.value)}
               className="w-44 text-white bg-black/50 border-primary/40 focus:border-primary"
             />
           </div>
 
-          <Button disabled={actionLoading || flag.value} onClick={resumeFlag}>
-            Event started
+          <Button
+            disabled={actionLoading || Boolean(flag.value && !flag.isAutoPausing)}
+            onClick={resumeFlag}
+            className="bg-primary hover:bg-primary/90 text-black font-bold disabled:opacity-50"
+          >
+            {actionLoading ? 'Please wait...' : (flag.value ? 'Event Running' : 'Start Event')}
           </Button>
-          <Button disabled={actionLoading || !flag.value} onClick={pauseFlag}>
-            Event paused
+          <Button
+            disabled={actionLoading || !flag.value}
+            onClick={pauseFlag}
+            variant="outline"
+            className="text-white border-primary/40 hover:bg-primary/20"
+          >
+            Pause Event
           </Button>
           <Button
             type="button"
