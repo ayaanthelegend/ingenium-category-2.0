@@ -218,7 +218,16 @@ export default function Home() {
     setZCounter((prev) => prev + 1);
   };
 
-  const handleTourStep = (stepIndex: number, target: string) => {
+  const [tourCamera, setTourCamera] = useState({ scale: 1, x: 0, y: 0 });
+  const [tourTarget, setTourTarget] = useState<string | null>(null);
+
+  const handleTourStep = (
+    stepIndex: number,
+    target: string,
+    camera: { scale: number; x: number; y: number }
+  ) => {
+    setTourCamera(camera);
+    setTourTarget(target);
     if (["stocks", "bank", "news", "scoreboard"].includes(target)) {
       openProgram(target);
       bringToFront(target);
@@ -285,14 +294,29 @@ export default function Home() {
   }
 
   return (
-    <div className="h-screen flex flex-col justify-between items-center p-16 bg-black/50">
-      <h1 className="fixed bottom-4 z-50 right-4 text-xs text-white/50 font-light">
-        <span className={'text-white font-black transition duration-500 hover:opacity-50 cursor-pointer'} onClick={() => {
-          getNews()
-          getStocks()
-          getMe()
-        }}>Refresh</span> made with &lt;3 for Markhors Den
-      </h1>
+    <div className="h-screen w-screen overflow-hidden relative bg-black">
+      <motion.div
+        animate={{
+          scale: isTourOpen ? tourCamera.scale : 1,
+          x: isTourOpen ? tourCamera.x : 0,
+          y: isTourOpen ? tourCamera.y : 0,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 85,
+          damping: 18,
+          mass: 0.9,
+        }}
+        style={{ transformOrigin: "center center" }}
+        className="h-full w-full flex flex-col justify-between items-center p-16 bg-black/50 relative overflow-hidden"
+      >
+        <h1 className="fixed bottom-4 z-50 right-4 text-xs text-white/50 font-light">
+          <span className={'text-white font-black transition duration-500 hover:opacity-50 cursor-pointer'} onClick={() => {
+            getNews()
+            getStocks()
+            getMe()
+          }}>Refresh</span> made with &lt;3 for Markhors Den
+        </h1>
 
       <motion.div
         initial={{ opacity: 0 }}
@@ -367,6 +391,7 @@ export default function Home() {
             key={win.name}
             name={win.name}
             zIndex={win.z}
+            isTourTarget={isTourOpen && tourTarget === win.name}
             onClose={() => closeWindow(win.name)}
             onClick={() => bringToFront(win.name)}
             offset={openWindows.findIndex(w => w.name === win.name) * 7}
@@ -427,10 +452,15 @@ export default function Home() {
           </CardContent>
         </Card>
       </motion.div>
+      </motion.div>
 
       <FeatureTour
         isOpen={isTourOpen}
-        onClose={() => setIsTourOpen(false)}
+        onClose={() => {
+          setIsTourOpen(false);
+          setTourCamera({ scale: 1, x: 0, y: 0 });
+          setTourTarget(null);
+        }}
         onStepChange={handleTourStep}
       />
     </div>
@@ -457,13 +487,14 @@ function DesktopIcon({ name, Icon, clickEvent }: DesktopIconProps) {
   );
 }
 
-function WindowFrame({name, children, onClose, onClick, offset = 0, zIndex}: {
+function WindowFrame({name, children, onClose, onClick, offset = 0, zIndex, isTourTarget}: {
   name: string;
   children: React.ReactNode;
   onClose: () => void;
   onClick: () => void;
   offset?: number;
   zIndex: number;
+  isTourTarget?: boolean;
 }) {
   const dragControls = useDragControls();
 
@@ -517,23 +548,37 @@ function WindowFrame({name, children, onClose, onClick, offset = 0, zIndex}: {
           right: { cursor: "ew-resize", width: "4px", right: "-2px" },
         }}
       >
-        <Card className="h-full flex flex-col overflow-hidden p-0 text-white">
-          <CardHeader
-            onPointerDown={(e) => dragControls.start(e)}
-            className="bg-primary/20 flex flex-row items-center justify-between px-4 py-2 cursor-move"
-          >
-            <CardTitle className="text-sm">{name}.exe</CardTitle>
-            <button
-              onClick={onClose}
-              className="text-primary font-bold hover:text-primary/50 transition"
+        <div className="relative h-full w-full">
+          {isTourTarget && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute -top-8 left-2 z-50 flex items-center gap-1.5 bg-neutral-950 border border-neutral-700 text-white px-2.5 py-0.5 rounded text-[11px] font-mono tracking-wider shadow-lg pointer-events-none"
             >
-              ✕
-            </button>
-          </CardHeader>
-          <CardContent className="flex-1 overflow-auto px-4 py-2 select-text">
-            {children}
-          </CardContent>
-        </Card>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              FOCUS: {name.toUpperCase()}
+            </motion.div>
+          )}
+          <Card className={`h-full flex flex-col overflow-hidden p-0 text-white transition-all duration-300 ${
+            isTourTarget ? 'ring-2 ring-white shadow-[0_0_40px_rgba(255,255,255,0.35)]' : ''
+          }`}>
+            <CardHeader
+              onPointerDown={(e) => dragControls.start(e)}
+              className="bg-primary/20 flex flex-row items-center justify-between px-4 py-2 cursor-move"
+            >
+              <CardTitle className="text-sm">{name}.exe</CardTitle>
+              <button
+                onClick={onClose}
+                className="text-primary font-bold hover:text-primary/50 transition"
+              >
+                ✕
+              </button>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-auto px-4 py-2 select-text">
+              {children}
+            </CardContent>
+          </Card>
+        </div>
       </Resizable>
     </motion.div>
   );
