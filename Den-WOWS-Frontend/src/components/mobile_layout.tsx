@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   LiaAddressBook,
+  LiaCompassSolid,
   LiaDoorOpenSolid,
   LiaInfoSolid,
   LiaQuestionSolid,
@@ -33,6 +34,7 @@ interface MobileLayoutProps {
   newsFlash: boolean;
   refreshAllData: () => void;
   onLogout: () => void;
+  onOpenTour?: () => void;
   formatTimeLeft: (sec: number) => string;
 }
 
@@ -47,6 +49,7 @@ export default function MobileLayout({
   newsFlash,
   refreshAllData,
   onLogout,
+  onOpenTour,
   formatTimeLeft,
 }: MobileLayoutProps) {
   const [activeProgram, setActiveProgram] = useState<string | null>(null);
@@ -56,6 +59,7 @@ export default function MobileLayout({
     { name: "news", label: "News Feed", icon: RiNewspaperLine },
     { name: "bank", label: "Bank Profile", icon: RiBankFill },
     { name: "scoreboard", label: "Leaderboard", icon: LiaTrophySolid },
+    { name: "tour", label: "Feature Tour", icon: LiaCompassSolid, action: onOpenTour },
     { name: "about", label: "Info / About", icon: LiaInfoSolid },
     { name: "help", label: "Help Guide", icon: LiaQuestionSolid },
     { name: "credits", label: "Credits", icon: LiaAddressBook },

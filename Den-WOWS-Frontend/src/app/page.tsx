@@ -6,6 +6,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   LiaAddressBook,
+  LiaCompassSolid,
   LiaDoorOpenSolid,
   LiaInfoSolid,
   LiaQuestionSolid,
@@ -27,6 +28,7 @@ import LeaderboardProgram from "@/components/programs/leaderboard";
 import {News, Stock, User, Flag} from "@/components/schemas";
 import axios from "axios";
 import MobileLayout from "@/components/mobile_layout";
+import FeatureTour from "@/components/feature_tour";
 
 
 const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -38,10 +40,23 @@ export default function Home() {
   const [me, setMe] = useState<User | null>(null);
   const [leaderboardUsers, setLeaderboardUsers] = useState<Array<User>>([]);
   const [update, setUpdate] = useState('')
-  const [timeLeft, setTimeLeft] = useState(0)
-  const [flag, setFlag] = useState<Flag | null>(null)
-  const [newsFlash, setNewsFlash] = useState(false)
-  const prevLatestNewsIdRef = useRef<string | null>(null)
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [flag, setFlag] = useState<Flag | null>(null);
+  const [newsFlash, setNewsFlash] = useState(false);
+  const prevLatestNewsIdRef = useRef<string | null>(null);
+  const [isTourOpen, setIsTourOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      const hasCompleted = localStorage.getItem("feature_tour_completed");
+      if (!hasCompleted) {
+        const timer = setTimeout(() => {
+          setIsTourOpen(true);
+        }, 1200);
+        return () => clearTimeout(timer);
+      }
+    } catch {}
+  }, []);
 
   const getFlag = async () => {
     try {
@@ -173,6 +188,7 @@ export default function Home() {
     click?: () => void;
   }[] = [
     { name: "about", item: LiaInfoSolid },
+    { name: "tour", item: LiaCompassSolid, click: () => setIsTourOpen(true) },
     { name: "help", item: LiaQuestionSolid },
     { name: "credits", item: LiaAddressBook },
     { name: "stocks", item: AiOutlineStock },
@@ -183,6 +199,10 @@ export default function Home() {
   ];
 
   const openProgram = (name: string, click?: () => void) => {
+    if (name === "tour") {
+      setIsTourOpen(true);
+      return;
+    }
     if (name === "log out") {
       click?.();
       return;
@@ -196,6 +216,13 @@ export default function Home() {
     });
 
     setZCounter((prev) => prev + 1);
+  };
+
+  const handleTourStep = (stepIndex: number, target: string) => {
+    if (["stocks", "bank", "news", "scoreboard"].includes(target)) {
+      openProgram(target);
+      bringToFront(target);
+    }
   };
 
   const bringToFront = (name: string) => {
@@ -251,6 +278,7 @@ export default function Home() {
         newsFlash={newsFlash}
         refreshAllData={refreshAllData}
         onLogout={() => router.push("/login")}
+        onOpenTour={() => setIsTourOpen(true)}
         formatTimeLeft={formatTimeLeft}
       />
     );
@@ -399,6 +427,12 @@ export default function Home() {
           </CardContent>
         </Card>
       </motion.div>
+
+      <FeatureTour
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+        onStepChange={handleTourStep}
+      />
     </div>
   );
 }

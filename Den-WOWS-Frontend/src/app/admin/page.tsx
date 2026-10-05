@@ -162,7 +162,6 @@ const Users = () => {
   }
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [isCredListOpen, setIsCredListOpen] = useState(false);
   const [copiedTeam, setCopiedTeam] = useState<string | null>(null);
 
   const handleCopy = (team: string, pass: string) => {
@@ -199,26 +198,6 @@ const Users = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-56 bg-neutral-900 border-white/20 text-white placeholder:text-white/40"
             />
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsCredListOpen(true)}
-              className="border-primary/40 text-primary hover:bg-primary/10 font-bold"
-            >
-              View 100 Credentials
-            </Button>
-
-            <a href="/Team_Credentials.xlsx" download="Team_Credentials.xlsx">
-              <Button type="button" variant="outline" className="border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 font-medium">
-                Download Excel (.xlsx)
-              </Button>
-            </a>
-            <a href="/Team_Credentials.txt" download="Team_Credentials.txt">
-              <Button type="button" variant="outline" className="border-white/20 text-white/80 hover:bg-white/10 font-medium">
-                Download TXT
-              </Button>
-            </a>
 
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogTrigger asChild>
@@ -259,70 +238,7 @@ const Users = () => {
               </DialogContent>
             </Dialog>
 
-            <Dialog open={isCredListOpen} onOpenChange={setIsCredListOpen}>
-              <DialogContent className="sm:max-w-3xl max-h-[85vh] h-[85vh] flex flex-col p-0 overflow-hidden z-50">
-                <div className="p-6 pb-4 border-b border-white/10 shrink-0 flex justify-between items-start">
-                  <div>
-                    <DialogTitle className="text-primary font-black text-xl">
-                      Official Team Login Credentials (100 Teams)
-                    </DialogTitle>
-                    <DialogDescription className="text-xs text-white/60 mt-1">
-                      Directly from Team_Credentials.xlsx. These accounts are active for login.
-                    </DialogDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <a href="/Team_Credentials.xlsx" download="Team_Credentials.xlsx">
-                      <Button size="sm" variant="outline" className="text-xs border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10">
-                        Download Excel (.xlsx)
-                      </Button>
-                    </a>
-                    <a href="/Team_Credentials.txt" download="Team_Credentials.txt">
-                      <Button size="sm" variant="secondary" className="text-xs">
-                        Download TXT
-                      </Button>
-                    </a>
-                  </div>
-                </div>
 
-                <div className="p-6 overflow-y-auto flex-1 min-h-0 space-y-2 pr-4 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.3)_transparent]">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-white/10">
-                        <TableHead className="w-16 text-white/70">#</TableHead>
-                        <TableHead className="text-white/70">Team Name</TableHead>
-                        <TableHead className="text-white/70">Password / Code</TableHead>
-                        <TableHead className="w-24 text-right text-white/70">Action</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {teamCredentialsData.map((item) => (
-                        <TableRow key={item.sno} className="border-white/5 hover:bg-white/5">
-                          <TableCell className="font-mono text-xs text-white/50">{item.sno}</TableCell>
-                          <TableCell className="font-semibold text-white">{item.team}</TableCell>
-                          <TableCell className="font-mono font-bold text-primary">{item.password}</TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-xs text-white/70 hover:text-white"
-                              onClick={() => handleCopy(item.team, item.password)}
-                            >
-                              {copiedTeam === item.team ? '✓ Copied' : 'Copy'}
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                <div className="p-4 px-6 border-t border-white/10 bg-neutral-950/95 shrink-0 flex justify-end">
-                  <Button onClick={() => setIsCredListOpen(false)} variant="outline" className="text-sm">
-                    Close
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
           </div>
         </div>
 

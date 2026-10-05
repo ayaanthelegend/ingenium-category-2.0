@@ -76,9 +76,21 @@ export default function Login() {
             )}
           </div>
           <div className={`transition duration-500 flex flex-row mt-2 gap-2 justify-start items-start ${loading && 'pointer-events-none opacity-50'}`}>
-            <InputWithIcon onChange={(e) => setUsername(e.target.value)} onKeyDown={handleKeyDown} icon={<LiaAtSolid/>} placeholder={'username'}/>
-            <InputWithIcon onChange={(e) => setPassword(e.target.value)} onKeyDown={handleKeyDown} type={"password"} icon={<LiaAsteriskSolid/>} placeholder={'password'}/>
+            <InputWithIcon value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={handleKeyDown} icon={<LiaAtSolid/>} placeholder={'username'}/>
+            <InputWithIcon value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={handleKeyDown} type={"password"} icon={<LiaAsteriskSolid/>} placeholder={'password'}/>
             <Button onClick={login} disabled={loading}><LiaGreaterThanSolid/></Button>
+          </div>
+          <div className="flex items-center gap-3 mt-3">
+            <button
+              type="button"
+              onClick={() => {
+                setUsername("demo");
+                setPassword("demo123");
+              }}
+              className="text-xs text-neutral-400 hover:text-white transition font-mono border border-neutral-800 bg-neutral-900/60 hover:bg-neutral-800 px-2.5 py-1 rounded"
+            >
+              Quick Demo: demo / demo123
+            </button>
           </div>
         </div>
       </div>

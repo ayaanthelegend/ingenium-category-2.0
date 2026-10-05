@@ -51,24 +51,19 @@ export class SeedService implements OnModuleInit {
   }
 
   private async seedUsers() {
-    const count = await this.userModel.countDocuments().exec();
-    if (count === 0) {
-      const hashedPassword = await bcrypt.hash('password123', 10);
-      await this.userModel.create([
-        {
-          username: 'trader',
-          password: hashedPassword,
-          balance: 100000,
-          stocksOwned: [],
-        },
-        {
-          username: 'wolf',
-          password: hashedPassword,
-          balance: 500000,
-          stocksOwned: [],
-        },
-      ]);
-      console.log('[SeedService] Seeded default user accounts (trader, wolf).');
+    // Remove all old/sample accounts to ensure clean showcase environment
+    await this.userModel.deleteMany({ username: { $ne: 'demo' } }).exec();
+
+    const demoUser = await this.userModel.findOne({ username: 'demo' }).exec();
+    if (!demoUser) {
+      const hashedPassword = await bcrypt.hash('demo123', 10);
+      await this.userModel.create({
+        username: 'demo',
+        password: hashedPassword,
+        balance: 250000,
+        stocksOwned: [],
+      });
+      console.log('[SeedService] Seeded clean demo account (username: demo, password: demo123).');
     }
   }
 
