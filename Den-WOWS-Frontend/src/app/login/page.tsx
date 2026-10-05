@@ -60,16 +60,16 @@ export default function Login() {
   return (
     <div className={`flex justify-between items-center flex-col min-h-screen transition duration-500 ${error ? 'bg-black/80' : 'bg-black/50'}`}>
       <div className={'w-full flex justify-end items-end flex-col p-8 md:p-16'}>
-        <h1 className={'text-xl font-black'}><span className={"transition duration-500 " + (error ? 'text-red-700/75' : 'text-primary/60')}>markhors</span> den</h1>
-        <h1 className={'text-4xl md:text-5xl font-black'}>wolves of <span className={"transition duration-500 " + (error ? 'text-red-700/75' : 'text-primary/60')}>wall street</span>.</h1>
+        <h1 className={'text-xl font-black transition duration-500 ' + (error ? 'text-red-700/75' : 'text-[#FFBF00]')}>Ingenium 2026</h1>
+        <h1 className={'text-4xl md:text-5xl font-black'}>Goldmans <span className={"transition duration-500 " + (error ? 'text-red-700/75' : 'text-[#FFBF00]')}>Gambit</span>.</h1>
       </div>
       <div className={'flex flex-row justify-start items-stretch w-full p-16'}>
-        <Image src={'/Logo-Alt.png'} width={150} height={100} alt={'logo'} className={`transition duration-500 rounded-full border ${error ? 'border-red-700/75' : 'border-primary'} p-2`}/>
+        <Image src={'/logowithbg.png'} width={150} height={150} alt={'logo'} className={`transition duration-500 rounded-2xl border object-contain ${error ? 'border-red-700/75' : 'border-[#FFBF00]'} p-1 bg-black/40`}/>
         <div className={'flex flex-grow justify-center ml-4 items-start flex-col'}>
           <div className={'flex justify-end items-end flex-col'}>
             <div className={'flex flex-row items-baseline'}>
               <h1 className={`transition duration-500 font-black text-3xl ${error ? 'text-red-700/75' : 'text-white/80'}`}>hello there</h1>
-              <h1 className={`transition duration-500 font-black ml-1 ${error ? 'text-red-700/75' : 'text-primary/40'}`}>need help?</h1>
+              <h1 className={`transition duration-500 font-black ml-1 ${error ? 'text-red-700/75' : 'text-[#FFBF00]/70'}`}>team login</h1>
             </div>
             {errorMsg && (
               <p className="text-red-400 font-semibold text-sm mt-1 transition duration-300">{errorMsg}</p>
