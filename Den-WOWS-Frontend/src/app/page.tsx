@@ -221,6 +221,14 @@ export default function Home() {
   const [tourCamera, setTourCamera] = useState({ scale: 1, x: 0, y: 0 });
   const [tourTarget, setTourTarget] = useState<string | null>(null);
 
+  const handleTargetChange = (target: string) => {
+    setTourTarget(target);
+    if (["stocks", "bank", "news", "scoreboard"].includes(target)) {
+      openProgram(target);
+      bringToFront(target);
+    }
+  };
+
   const handleTourStep = (
     stepIndex: number,
     target: string,
@@ -294,21 +302,23 @@ export default function Home() {
   }
 
   return (
-    <div className="h-screen w-screen overflow-hidden relative bg-black">
+    <div
+      className="h-screen w-screen overflow-hidden relative bg-cover bg-center bg-no-repeat bg-fixed"
+      style={{ backgroundImage: 'url("/bg.png")' }}
+    >
       <motion.div
+        id="desktop-container"
         animate={{
           scale: isTourOpen ? tourCamera.scale : 1,
           x: isTourOpen ? tourCamera.x : 0,
           y: isTourOpen ? tourCamera.y : 0,
         }}
         transition={{
-          type: "spring",
-          stiffness: 85,
-          damping: 18,
-          mass: 0.9,
+          duration: 0.7,
+          ease: [0.25, 0.1, 0.25, 1.0],
         }}
-        style={{ transformOrigin: "center center" }}
-        className="h-full w-full flex flex-col justify-between items-center p-16 bg-black/50 relative overflow-hidden"
+        style={{ transformOrigin: "0 0" }}
+        className="h-full w-full flex flex-col justify-between items-center p-16 bg-black/50 relative"
       >
         <h1 className="fixed bottom-4 z-50 right-4 text-xs text-white/50 font-light">
           <span className={'text-white font-black transition duration-500 hover:opacity-50 cursor-pointer'} onClick={() => {
@@ -319,6 +329,8 @@ export default function Home() {
         </h1>
 
       <motion.div
+        data-tour-target="session"
+        data-tour="session-timer"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5 }}
@@ -403,6 +415,8 @@ export default function Home() {
 
       {/* Taskbar */}
       <motion.div
+        data-tour-target="session"
+        data-tour="dock"
         initial={{opacity: 0, translateY: '100%'}}
         animate={{opacity: 1, translateY: '0%'}}
         transition={{duration: 1.5}}
@@ -462,6 +476,7 @@ export default function Home() {
           setTourTarget(null);
         }}
         onStepChange={handleTourStep}
+        onTargetChange={handleTargetChange}
       />
     </div>
   );
@@ -517,6 +532,8 @@ function WindowFrame({name, children, onClose, onClick, offset = 0, zIndex, isTo
 
   return (
     <motion.div
+      data-tour-target={name}
+      id={`window-${name}`}
       drag={true}
       onClick={onClick}
       dragListener={false}
@@ -549,18 +566,8 @@ function WindowFrame({name, children, onClose, onClick, offset = 0, zIndex, isTo
         }}
       >
         <div className="relative h-full w-full">
-          {isTourTarget && (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="absolute -top-8 left-2 z-50 flex items-center gap-1.5 bg-neutral-950 border border-neutral-700 text-white px-2.5 py-0.5 rounded text-[11px] font-mono tracking-wider shadow-lg pointer-events-none"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-              FOCUS: {name.toUpperCase()}
-            </motion.div>
-          )}
           <Card className={`h-full flex flex-col overflow-hidden p-0 text-white transition-all duration-300 ${
-            isTourTarget ? 'ring-2 ring-white shadow-[0_0_40px_rgba(255,255,255,0.35)]' : ''
+            isTourTarget ? 'ring-2 ring-primary shadow-[0_0_40px_rgba(255,191,0,0.4)]' : ''
           }`}>
             <CardHeader
               onPointerDown={(e) => dragControls.start(e)}

@@ -82,10 +82,14 @@ export default function MobileLayout({
   };
 
   return (
-    <div className="min-h-screen w-full bg-black text-white flex flex-col p-4 pb-12 select-none overflow-x-hidden">
+    <div
+      className="min-h-screen w-full bg-cover bg-center bg-no-repeat bg-fixed text-white flex flex-col p-4 pb-12 select-none overflow-x-hidden"
+      style={{ backgroundImage: 'url("/bg.png")' }}
+    >
+      <div className="fixed inset-0 bg-black/65 backdrop-blur-[2px] pointer-events-none -z-10" />
       {/* PROGRAM OVERLAY */}
       {activeProgram ? (
-        <div className="fixed inset-0 z-50 bg-black flex flex-col overflow-y-auto p-4">
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col overflow-y-auto p-4">
           <div className="sticky top-0 z-50 bg-black/90 backdrop-blur-md pb-4 pt-2 border-b border-white/10 flex items-center justify-between">
             <Button
               onClick={() => setActiveProgram(null)}
