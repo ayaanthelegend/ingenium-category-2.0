@@ -1,9 +1,9 @@
-# 🚀 INGENIUM 26 - Monorepo (Frontend & Backend)
+# 🐺 Markhors Den — Wolves of Wall Street (Monorepo)
 
 ## 📌 Project Overview
-This monorepo contains:
-- **`Den-WOWS-Frontend`**: Next.js 15 App (`http://localhost:3001`), deployed to **Vercel** (`goldmans_gambit`).
-- **`Den-WOWS-Backend`**: NestJS App (`http://localhost:3000`), deployed to **Render** (`https://ingenium-category-2-0.onrender.com`).
+This repository contains the official Markhors Den (Wolves of Wall Street) stock trading simulation system developed for International School Lahore:
+- **`Den-WOWS-Frontend`**: Next.js 15 Web Application (`http://localhost:3001`), deployed to **Vercel** (`den-wows-frontend`).
+- **`Den-WOWS-Backend`**: NestJS Application (`http://localhost:3000`), deployed to **Render** (`https://ingenium-category-2-0.onrender.com`).
 
 ---
 
@@ -12,8 +12,8 @@ This monorepo contains:
 ### 1️⃣ Clone & Install Dependencies
 Run the following commands in terminal:
 ```bash
-git clone https://github.com/ayaanthelegend/ingenium-category-2.0.git
-cd ingenium-category-2.0
+git clone https://github.com/ayaanthelegend/markhors-den.git
+cd markhors-den
 npm install
 npm install --prefix Den-WOWS-Backend
 npm install --prefix Den-WOWS-Frontend
