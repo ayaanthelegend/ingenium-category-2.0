@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Markhors Den - Wolves of Wall Street (Frontend & Backend)",
   "private": true,
-  "license": "GPL-3.0-or-later",
+  "license": "MIT",
   "scripts": {
     "dev": "concurrently -k -p \"[{name}]\" -n \"Backend,Frontend\" -c \"cyan,magenta\" \"npm run start:dev --prefix Den-WOWS-Backend\" \"npm run dev --prefix Den-WOWS-Frontend\"",
     "dev:backend": "npm run start:dev --prefix Den-WOWS-Backend",

@@ -82,7 +82,11 @@ export default function MobileLayout({
   };
 
   return (
-    <div className="min-h-screen w-full bg-black text-white flex flex-col p-4 pb-12 select-none overflow-x-hidden">
+    <div
+      className="min-h-screen w-full bg-cover bg-center bg-no-repeat bg-fixed text-white flex flex-col p-4 pb-12 select-none overflow-x-hidden relative"
+      style={{ backgroundImage: 'url("/bg.png")' }}
+    >
+      <div className="absolute inset-0 bg-black/60 pointer-events-none -z-10" />
       {/* PROGRAM OVERLAY */}
       {activeProgram ? (
         <div className="fixed inset-0 z-50 bg-black flex flex-col overflow-y-auto p-4">
